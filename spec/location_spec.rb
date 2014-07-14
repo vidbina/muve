@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Location' do
+describe Location do
   before do
     @lat, @lng = Faker::Geolocation.lat, Faker::Geolocation.lng
   end
@@ -47,5 +47,15 @@ describe 'Location' do
   it 'is invalid when longitude exceeds bounds' do
     expect(Location.new(@lat, -91)).to be_invalid
     expect(Location.new(@lat,  90)).to be_invalid
+  end
+
+  describe 'is factory-compatible and' do
+    it 'is buildable' do
+      expect(build(:location).class).to eq(Location)
+    end
+
+    it 'is not creatable' do
+      expect{ create(:location) }.to raise_error
+    end
   end
 end
