@@ -22,8 +22,13 @@ describe 'Location' do
 
   it 'sets the longitude through its aliases' do
     location = Location.new(@lat, @lng)
+
     longitude = Faker::Geolocation.lng
     location.lng = longitude
+    expect(location.longitude).to eq(longitude)
+
+    longitude = Faker::Geolocation.lng
+    location.long = longitude
     expect(location.longitude).to eq(longitude)
   end
 

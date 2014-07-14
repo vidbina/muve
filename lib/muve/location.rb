@@ -1,9 +1,13 @@
 class Location
   attr_accessor :latitude, :longitude
-  alias_method :lat, :latitude
-  alias_method :lat=, :latitude=
-  alias_method :lng, :longitude
-  alias_method :lng=, :longitude=
+
+  alias_method :lat,   :latitude
+  alias_method :lat=,  :latitude=
+  
+  alias_method :lng,   :longitude
+  alias_method :lng=,  :longitude=
+  alias_method :long,  :longitude
+  alias_method :long=, :longitude=
 
   def initialize(latitude, longitude, type=:wgs84)
     @latitude, @longitude = latitude, longitude
