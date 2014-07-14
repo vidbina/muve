@@ -1,5 +1,5 @@
 require "muve/version"
 
 module Muve
-  # Your code goes here...
+  require "muve/location"
 end
