@@ -1,4 +1,6 @@
 class Location
+  include Model
+
   attr_accessor :latitude, :longitude
 
   alias_method :lat,   :latitude
@@ -9,7 +11,7 @@ class Location
   alias_method :long,  :longitude
   alias_method :long=, :longitude=
 
-  def initialize(latitude, longitude, type=:wgs84)
+  def initialize(latitude=nil, longitude=nil, type=:wgs84)
     @latitude, @longitude = latitude, longitude
   end
 
