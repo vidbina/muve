@@ -3,9 +3,9 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'muve/version'
 
 Gem::Specification.new do |s|
-  s.name          = 'Muve'
+  s.name          = 'muve'
   s.version       = Muve::VERSION
-  s.summary       = 'Muve gem'
+  s.summary       = 'muve gem'
   s.description   = 'Basic helpers to be used with Muvement'
   s.authors       = ["David Asabina"]
   s.email         = ["david@supr.nu"]
@@ -22,4 +22,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec",   "~> 3.0.0"
   s.add_development_dependency "ffaker"
+
+  s.required_ruby_version = '>= 1.9.2'
 end
