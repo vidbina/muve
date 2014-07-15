@@ -40,13 +40,13 @@ describe Location do
   end
 
   it 'is invalid when latitude exceeds bounds' do
-    expect(Location.new(-181, @lng)).to be_invalid
-    expect(Location.new( 181, @lng)).to be_invalid
+    expect(Location.new(-91, @lng)).to be_invalid
+    expect(Location.new( 91, @lng)).to be_invalid
   end
 
   it 'is invalid when longitude exceeds bounds' do
-    expect(Location.new(@lat, -91)).to be_invalid
-    expect(Location.new(@lat,  90)).to be_invalid
+    expect(Location.new(@lat, -181)).to be_invalid
+    expect(Location.new(@lat,  181)).to be_invalid
   end
 
   describe 'is factory-compatible and' do

@@ -17,6 +17,7 @@ class Location
 
   def valid?
     return false unless latitude.abs <= 90 && longitude.abs <= 180
+    true
   end
 
   def invalid?

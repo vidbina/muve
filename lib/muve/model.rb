@@ -23,6 +23,14 @@ module Model
     @new_record ||= true
   end
 
+  def valid?
+    false
+  end
+
+  def invalid?
+    !valid?
+  end
+
   private
   def create_or_update
     result = new_record? ? create : update
