@@ -1,16 +1,16 @@
 FactoryGirl.define do
-  factory :location do
+  factory Muve::Location do
     lat { Faker::Geolocation.lat }
     long { Faker::Geolocation.lng }
   end
 
-  factory :traveller do
+  factory Muve::Traveller do
     id { SecureRandom.uuid }
   end
 
-  factory :movement do
-    traveller { build(:traveller) }
+  factory Muve::Movement do
+    traveller { build(Muve::Traveller) }
     #traveller_id { SecureRandom.uuid }
-    location { build(:location) }
+    location { build(Muve::Location) }
   end
 end
