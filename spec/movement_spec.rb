@@ -33,10 +33,10 @@ describe Muve::Movement do
   end
 
   it 'shares the connection among all instances' do
-    Muve.init
+    connection = Object.new
+    Muve.init(connection)
 
-    connection = Muve::Model.connection
-    expect(connection).not_to eq(nil)
+    expect(Muve::Model.connection).to eq(connection)
 
     expect(Muve::Movement.new.connection).to be(connection)
     expect(Muve::Location.new.connection).to be(connection)
