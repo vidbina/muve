@@ -4,4 +4,7 @@ module MuveError
 
   class MuveSaveError < MuveError
   end
+
+  class MuveInvalidQuery < MuveError
+  end
 end
