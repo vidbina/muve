@@ -35,7 +35,7 @@ describe Muve::Model do
     }
   end
 
-  describe 'extended into make a storeable resource' do
+  describe 'equiped with an adaptor' do
     before do
       class Resource
         include Muve::Model
@@ -77,7 +77,6 @@ describe Muve::Model do
     end
 
     it 'calls the find handler upon a request to find resources' do
-      skip
       expect(GenericAdaptor).to receive(:find).with(Resource, { name: 'bogus' })
       Resource.where(name: 'bogus')
     end
@@ -86,11 +85,6 @@ describe Muve::Model do
       id = SecureRandom.uuid
       expect(GenericAdaptor).to receive(:fetch).with(Resource, id, nil)
       Resource.find(id)
-    end
-
-    it 'connects the presented adaptor to the model' do
-      skip
-      Resource
     end
   end
 end

@@ -22,19 +22,27 @@ module Muve
   require "muve/movement"
 
   module Model
+    # Connection to the datastore
     def connection
       Model.connection
     end
 
-    def self.connection(connection=nil)
-      if(connection)
-        @@conn = connection
-      end
+    # Set the connection to the datastore
+    def self.connection=connection
+      (@@conn = connection) if(connection)
+    end
+
+    # Connection to the datastore
+    def self.connection
       @@conn
     end
   end
 
+  # Initialize Muve with an optional connection to the datastore.
+  # This could be a MongoDB or PostgreSQL connection for instance. Besides a 
+  # connection, an adaptor will be needed to actually handle the interaction 
+  # between the models and the datastore through the given connection.
   def self.init(connection=nil)
-    Model.connection(connection)
+    Model.connection=connection
   end
 end
