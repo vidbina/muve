@@ -7,10 +7,19 @@ module Muve
   # handling the persisting of the resources they manange. That part of the 
   # lifing is dispatched to the +Model::Store+ object which may be though of 
   # as an adaptor.
+  #
+  # --
+  # TODO: Include ActiveRecord::Model instead of using this tedious
+  # implementation
+  # ++
   module Model
     include MuveError
     
     def initialize(params={})
+      params.each do |attr, value|
+        self.public_send "#{attr}=", value
+      end
+
       @new_record = true
       @destroyed = false
       # TODO: figure out how to best set this
@@ -21,8 +30,8 @@ module Muve
       base.extend ClassMethods
     end
 
-    # Initializes the Muve::Model class. Use the Muve::Model::init method to
-    # set a adaptor to take care of the retrieval and storage of resources.
+    # Initializes the +Muve::Model+ class. Use the +Muve::Model::init+ method 
+    # to set a adaptor to take care of the retrieval and storage of resources.
     def self.init(adaptor=nil)
       @@adaptor = adaptor
     end

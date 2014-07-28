@@ -2,10 +2,12 @@ describe Muve::Model do
   before do
     class Resource
       include Muve::Model
+      attr_accessor :name, :version
     end
 
     class AnotherResource
       include Muve::Model
+      attr_accessor :name, :version, :description
     end
   end
 
@@ -22,6 +24,19 @@ describe Muve::Model do
     expect(Muve::Model.handler).to be(adaptor)
   end
 
+  it 'sets the attributes of the resource at initialization' do
+    resource = Resource.new(name: 'muve-resource', version: 0)
+    expect(resource.name).to eq('muve-resource')
+    expect(resource.version).to eq(0)
+
+    another = AnotherResource.new(name: 'muve-something', version: nil, description: 'blah')
+    expect(another.name).to eq('muve-something')
+    expect(another.version).to eq(nil)
+    expect(another.description).to eq('blah')
+  end
+
+  # TODO: Study if this is desirable perhaps one would rather prefer setting
+  # seperate adaptors for different models
   it 'shares the adaptor amongst all its instances' do
     generic_adaptor = Object.new
     Resource.adaptor = generic_adaptor
