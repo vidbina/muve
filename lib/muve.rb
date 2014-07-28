@@ -26,15 +26,37 @@ module Muve
     def connection
       Model.connection
     end
+    
+    # Database instance for the model
+    def database
+      Model.database
+    end
 
     # Set the connection to the datastore
     def self.connection=connection
-      (@@conn = connection) if(connection)
+      (@@conn = connection) if (connection)
+    end
+
+    def self.database=database
+      (@@db = database) if (database)
     end
 
     # Connection to the datastore
     def self.connection
+      begin
       @@conn
+      rescue => e
+        raise MuveNotConfigured, "the connection has not been defined"
+      end
+    end
+
+    # Database instance to be used by the adaptor
+    def self.database
+      begin
+        @@db
+      rescue => e
+        raise MuveNotConfigured, "the database has not been defined"
+      end
     end
   end
 
@@ -42,7 +64,8 @@ module Muve
   # This could be a MongoDB or PostgreSQL connection for instance. Besides a 
   # connection, an adaptor will be needed to actually handle the interaction 
   # between the models and the datastore through the given connection.
-  def self.init(connection=nil)
-    Model.connection=connection
+  def self.init(connection=nil, database=nil)
+    Model.connection =connection
+    Model.database = database # can't automatically infer the db as this may differ among adaptors
   end
 end

@@ -16,14 +16,14 @@ module Muve
     include MuveError
     
     def initialize(params={})
+      params = {} unless params
       params.each do |attr, value|
+        next if invalid_attributes.include? attr.to_s
         self.public_send "#{attr}=", value
       end
 
       @new_record = true
       @destroyed = false
-      # TODO: figure out how to best set this
-      # Have all models in an app to run on the same adaptor
     end
 
     def self.included(base)
@@ -53,7 +53,7 @@ module Muve
 
     # Destroy a resource
     def destroy
-      if adaptor.delete(container, id)
+      if adaptor.delete(container, id) == true
         @destroyed = true 
       end
     end
@@ -85,8 +85,29 @@ module Muve
     def invalid?
       !valid?
     end
+
+    def id
+      @id
+    end
   
     private
+    def invalid_attributes
+      %w(id adaptor)
+    end
+
+    def populate(details)
+      details = {} unless details
+
+      @id = details[:id] if details.key? :id
+
+      details.each do |attr, value|
+        next if invalid_attributes.include? attr.to_s
+        self.public_send "#{attr}=", value
+      end
+
+      @new_record = false if details.key? :id
+    end
+
     def create_or_update
       result = new_record? ? create(attributes) : update(attributes)
     end
@@ -97,11 +118,14 @@ module Muve
     end
 
     def create(attr)
-      adaptor.create(container, attr)
+      @id = adaptor.create(container, attr)
+      @new_record = false
+      self
     end
 
     def update(attr)
       adaptor.update(container, id, attr)
+      self
     end
 
     def adaptor
@@ -109,10 +133,6 @@ module Muve
     end
 
     def container
-    end
-
-    def id
-      @id
     end
 
     def details
@@ -137,15 +157,31 @@ module Muve
         @@adaptor
       end
 
+      def connection
+        Muve::Model.connection
+      end
+
+      def database
+        Muve::Model.database
+      end
+  
+      # The container (e.g.: collection, tablename or anything that is analogous
+      # to this construct) of the resource
+      def container
+        raise MuveError::MuveNotConfigured, "container not configured"
+      end
+
       # Finds a resource by id
       def find(id)
-        self.adaptor.get(self, id)
+        result = self.new()
+        result.send(:populate, self.adaptor.get(self, id))
+        result
       end
 
       # Querries the resource repository for all resources that match the
       # specified parameters.
       def where(params)
-        self.adaptor.get(self, nil, params)
+        self.new(self.adaptor.get(self, nil, params))
       end
     end
   end

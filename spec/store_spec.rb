@@ -1,5 +1,13 @@
 describe Muve::Store do
   before do
+    class Resource
+      include Muve::Model
+
+      def self.container
+        'resources'
+      end
+    end
+
     class GenericStore
       extend Muve::Store
     end
@@ -24,19 +32,31 @@ describe Muve::Store do
     expect(GenericStore).to respond_to(:update)
   end
 
+  it 'raises incomplete implementation errors on non-implemented methods' do
+    %w(create delete update fetch find).each do |method|
+      expect{
+        if method == 'update'
+          GenericStore.send(method, 'resource', nil, {})
+        else
+          GenericStore.send(method, 'resource', nil)
+        end
+      }.to raise_error(MuveError::MuveIncompleteImplementation)
+    end
+  end
+
   it 'attempts to fetch a resource if the id is given' do
     expect(GenericStore).to receive(:fetch)
-    GenericStore.get('tablename', SecureRandom.uuid)
+    GenericStore.get(Resource, SecureRandom.uuid)
   end
 
   it 'attempts to find a resource if the id is not given but the details are' do
     expect(GenericStore).to receive(:find)
-    GenericStore.get('tablename', nil, { name: 'bogus' })
+    GenericStore.get(Resource, nil, { name: 'bogus' })
   end
 
   it 'raises an error if neither id nor details are given' do
     expect{
-      GenericStore.get('tablename')
+      GenericStore.get(Resource)
     }.to raise_error
   end
 end

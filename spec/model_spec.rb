@@ -1,14 +1,47 @@
-describe Muve::Model do
+describe 'Model' do
   before do
     class Resource
       include Muve::Model
       attr_accessor :name, :version
+
+      def self.container
+        'resources'
+      end
     end
 
     class AnotherResource
       include Muve::Model
       attr_accessor :name, :version, :description
+
+      def self.resource
+        'other_resources'
+      end
     end
+  end
+
+  it 'remembers its connection' do
+    object = Object.new
+    Muve::Model.connection = object
+    expect(Muve::Model.connection).to be(object)
+  end
+
+  it 'raises a not configured exception when connection is not set' do
+    skip # TODO: get rid of Singleton-like structure?
+    expect {
+      Muve::Model.connection
+    }.to raise_error(MuveError::MuveNotConfigured)
+
+    expect {
+      Resource.connection
+    }.to raise_error(MuveError::MuveNotConfigured)
+
+    expect {
+      AnotherResource.connection
+    }.to raise_error(MuveError::MuveNotConfigured)
+  end
+
+  it 'knows the identifier of its repository' do
+    expect(Resource).to respond_to(:container)
   end
 
   it 'allows the setting of the adaptor' do
@@ -41,13 +74,8 @@ describe Muve::Model do
     generic_adaptor = Object.new
     Resource.adaptor = generic_adaptor
 
-    3.times {
-      expect(Resource.new.send(:adaptor)).to be(generic_adaptor)
-    }
-
-    3.times {
-      expect(AnotherResource.new.send(:adaptor)).to be(generic_adaptor)
-    }
+    expect(Resource.new.send(:adaptor)).to be(generic_adaptor)
+    expect(AnotherResource.new.send(:adaptor)).to be(generic_adaptor)
   end
 
   describe 'equiped with an adaptor' do
@@ -78,6 +106,78 @@ describe Muve::Model do
       @res.save
     end
 
+    describe '#get' do
+      before(:each) do
+        @id = SecureRandom.hex
+        allow(GenericAdaptor).to receive(:fetch).and_return({ 
+          id: @id, 
+          name: 'Smile',
+          version: '0',
+          description: 'Supermodel smile... at least that is what they said'
+        })
+      end
+
+      it 'returns an instance of the model' do
+        expect(AnotherResource.find(@id)).to be_a(AnotherResource)
+      end
+
+      it 'returns an object containing the record data' do
+        result = AnotherResource.find(@id)
+        expect(result.name).to eq('Smile')
+      end
+
+      it 'returns a record that is not a new record' do
+        expect(AnotherResource.find(@id).new_record?).to be(false)
+      end
+    end
+
+    describe '#save' do
+      before(:each) do
+        allow(GenericAdaptor).to receive(:create).and_return(@id = SecureRandom.hex)
+      end
+
+      it 'returns an instance of itself' do
+        expect(@res.save).to be_a(Resource)
+      end
+
+      it 'obtains an id' do
+        expect { @res.save }.to change{ @res.id }.to(@id)
+      end
+
+      it 'is no longer a new record' do
+        expect{ @res.save }.to change{ @res.new_record? }.to(false)
+      end
+
+      it 'is persisted' do
+        expect{ @res.save }.to change{ @res.persisted? }.to(true)
+      end
+    end
+    
+    describe '#update' do
+    end
+
+    describe '#destroy' do
+      before(:each) do
+        @id = SecureRandom.hex
+        allow(GenericAdaptor).to receive(:fetch).and_return({ 
+          id: @id, 
+          name: 'Laugh',
+          version: 28,
+          description: 'The best laugh ever... makes me laugh'
+        })
+        allow(GenericAdaptor).to receive(:delete).and_return(true)
+        @res = AnotherResource.find(@id)
+      end
+
+      it 'is marked as removed' do
+        expect { @res.destroy }.to change{ @res.destroyed? }.to(true)
+      end
+
+      it 'is not a new record' do
+        expect { @res.destroy }.to change{ @res.destroyed? }.to(true)
+      end
+    end
+
     it 'calls the delete handler upon remove' do
       expect(GenericAdaptor).to receive(:delete).once
       @res.destroy
@@ -98,7 +198,7 @@ describe Muve::Model do
 
     it 'calls the fetcher to get a resource' do
       id = SecureRandom.uuid
-      expect(GenericAdaptor).to receive(:fetch).with(Resource, id, nil)
+      expect(GenericAdaptor).to receive(:fetch).with(Resource, id, anything)
       Resource.find(id)
     end
   end
