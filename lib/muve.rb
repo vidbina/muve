@@ -15,6 +15,7 @@ require "muve/version"
 # times to improve its usability and implementation.
 module Muve
   require "muve/errors"
+  require "muve/helpers"
   require "muve/model"
   require "muve/store"
   require "muve/location"

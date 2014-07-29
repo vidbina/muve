@@ -14,6 +14,7 @@ module Muve
   # ++
   module Model
     include MuveError
+    include Muve::Helper
     
     def initialize(params={})
       params = {} unless params

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'mongo'
 
 describe 'Mongo Adaptor' do
   let(:connection) { Mongo::MongoClient.new }
@@ -13,57 +12,12 @@ describe 'Mongo Adaptor' do
       end
     end
 
-    # NOTE: Adaptors return the data and leave the housekeeping of the model
-    # up to the respective model itself
-    class MongoAdaptor
-      extend Muve::Store
-
-      def self.create(resource, details)
-        raise MuveInvalidAttributes, "invalid update data" unless details.kind_of? Hash
-        resource.database[resource.container].insert(details)
-      end
-
-      def self.fetch(resource, id, details={})
-        # TODO: discover a solution that works for situations where database 
-        # driver returns string keys as well as symbol keys
-        details = {} unless details.kind_of? Hash
-        result = resource.database[resource.container].find_one(details.merge(_id: id))
-        result = result.merge('id' => result.delete('_id'))
-        result
-      end
-
-      def self.find(resource, details)
-        details = {} unless details.kind_of? Hash
-        Enumerator.new do |result|
-          resource.database[resource.container].find(details).each do |item|
-            item['id'] = item.delete('_id')
-            result << item
-          end
-        end
-      end
-
-      def self.update(resource, id, details)
-        raise MuveInvalidAttributes, "invalid update data" unless details.kind_of? Hash
-        # TODO: raise error if details is not valid
-        resource.database[resource.container].find_and_modify(
-          query: { _id: id },
-          update: details
-        )
-      end
-
-      def self.delete(resource, id, details=nil)
-        details = {} unless details.kind_of? Hash
-        details = details.merge(_id: id) if id
-        resource.database[resource.container].remove(details)
-      end
-    end
-
     Muve.init(connection, database)
   end
   
   it 'writes model data to the store' do
     expect{
-      MongoAdaptor.create(Place, {
+      Muve::Store::Mongo.create(Place, {
         city: Faker::Address.city,
         street: Faker::Address.street_name,
         building: Faker::Address.building_number
@@ -76,21 +30,21 @@ describe 'Mongo Adaptor' do
     new_name = Faker::Venue.name
 
     expect{
-      MongoAdaptor.update(Place, id, { name: new_name })
+      Muve::Store::Mongo.update(Place, id, { name: new_name })
     }.to change{database['places'].find_one(_id: id)['name']}.to(new_name)
   end
 
   it 'finds a resource from store' do
     id = database['places'].insert(name: Faker::Venue.name)
-    expect(MongoAdaptor.get(Place, id)["id"]).to eq(id)
+    expect(Muve::Store::Mongo.get(Place, id)[:id]).to eq(id)
   end
 
   it 'finds multiple resources from store' do
-    expect(MongoAdaptor.find(Place, {})).to be_a(Enumerable)
+    expect(Muve::Store::Mongo.find(Place, {})).to be_a(Enumerable)
   end
 
   it 'extracts a resource from every result in a multiple resource set' do
-    MongoAdaptor.find(Place, {}).take(3).each do |result|
+    Muve::Store::Mongo.find(Place, {}).take(3).each do |result|
       attributes = result.keys.map{ |i| i.to_s }
       expect(attributes).to include('id', 'city', 'street', 'building')
     end

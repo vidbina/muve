@@ -1,11 +1,25 @@
+require 'muve/store/mongo'
+
 module Muve
   # Muve::Store takes care of resource persistence and retrieval. Use stores
   # as adaptors to connect your implementation of Muve to whichever datastore
   # you please.
+  #
+  # Adaptors or Stores only take of the interaction with the datastore but 
+  # leave the model's housekeeping up the respective model. Make sure to 
+  # conform to the expected return formats for the different adaptor methods.
+  #
+  # Take a look at +Muve::Store::Mongo+ to find an implementation of a store
+  # adaptor.
   module Store
     include MuveError
+    include Muve::Helper
 
     # gets data from the given container matching the provided details
+    #
+    # Given a +Place+ resource the following calls may be acceptable
+    # - +Adaptor.get(Place, 1232) # find one resource where id = 1232+
+    # - +Adaptor.get(Place, nil, { city: 'NYC', rating: 5 })+ # find more
     def get(resource, id=nil, details=nil)
       raise MuveInvalidQuery unless id || details
 
