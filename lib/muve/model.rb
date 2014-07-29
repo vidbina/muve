@@ -43,12 +43,16 @@ module Muve
 
     # Save a resource and raises an MuveSaveError on failure
     def save!
-      create_or_update || raise(MuveSaveError)
+      create_or_update
+    rescue => e
+      raise MuveSaveError, "Save failed because #{e} was raised"
     end
   
     # Save a resource
     def save
       create_or_update
+    rescue => e
+      false
     end
 
     # Destroy a resource
@@ -110,22 +114,26 @@ module Muve
 
     def create_or_update
       result = new_record? ? create(attributes) : update(attributes)
+      self
     end
 
-    # TODO: implement
+    # NOTE: not sure we need this
     def attributes
-      {}
+      data = {}
+      fields.each { |k| data[k.to_sym] = self.public_send(k) }
+      data
     end
 
+    # Creates the record and performs the necessary housekeeping (e.g.: setting
+    # the new id and un-marking the new_record?
     def create(attr)
       @id = adaptor.create(container, attr)
       @new_record = false
-      self
     end
 
+    # TODO: Update the record and return the number of modified rows
     def update(attr)
       adaptor.update(container, id, attr)
-      self
     end
 
     def adaptor
@@ -168,7 +176,7 @@ module Muve
       # The container (e.g.: collection, tablename or anything that is analogous
       # to this construct) of the resource
       def container
-        raise MuveError::MuveNotConfigured, "container not configured"
+        raise MuveError::MuveNotConfigured, "container not defined for #{self}"
       end
 
       # Finds a resource by id

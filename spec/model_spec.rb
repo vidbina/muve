@@ -7,14 +7,22 @@ describe 'Model' do
       def self.container
         'resources'
       end
+
+      def fields
+        [:name, :version]
+      end
     end
 
     class AnotherResource
       include Muve::Model
       attr_accessor :name, :version, :description
 
-      def self.resource
+      def self.container
         'other_resources'
+      end
+
+      def fields
+        [:name, :version, :description]
       end
     end
   end
@@ -26,7 +34,7 @@ describe 'Model' do
   end
 
   it 'raises a not configured exception when connection is not set' do
-    skip # TODO: get rid of Singleton-like structure?
+    skip # TODO: get rid of Singleton-like pattern?
     expect {
       Muve::Model.connection
     }.to raise_error(MuveError::MuveNotConfigured)
@@ -106,7 +114,7 @@ describe 'Model' do
       @res.save
     end
 
-    describe '#get' do
+    describe '#find' do
       before(:each) do
         @id = SecureRandom.hex
         allow(GenericAdaptor).to receive(:fetch).and_return({ 
@@ -131,29 +139,46 @@ describe 'Model' do
       end
     end
 
+    describe '#where' do
+      it 'returns a result set of the matched data'
+    end
+
     describe '#save' do
       before(:each) do
+        @res.name = 'first'
         allow(GenericAdaptor).to receive(:create).and_return(@id = SecureRandom.hex)
       end
 
-      it 'returns an instance of itself' do
-        expect(@res.save).to be_a(Resource)
+      describe 'on a new record' do
+        it 'returns an instance of itself' do
+          expect(@res.save).to be_a(Resource)
+        end
+  
+        it 'obtains an id' do
+          expect { @res.save }.to change{ @res.id }.to(@id)
+        end
+  
+        it 'is no longer a new record' do
+          expect{ @res.save }.to change{ @res.new_record? }.to(false)
+        end
+  
+        it 'is persisted' do
+          expect{ @res.save }.to change{ @res.persisted? }.to(true)
+        end
       end
 
-      it 'obtains an id' do
-        expect { @res.save }.to change{ @res.id }.to(@id)
+      describe 'on a existing record' do
+        before(:each) do
+          allow(GenericAdaptor).to receive(:update).and_return(true)
+          @res.save
+        end
+  
+        it 'returns persist the resource' do
+          expect(@res).to receive(:update).once
+          @res.name = 'second'
+          @res.save
+        end
       end
-
-      it 'is no longer a new record' do
-        expect{ @res.save }.to change{ @res.new_record? }.to(false)
-      end
-
-      it 'is persisted' do
-        expect{ @res.save }.to change{ @res.persisted? }.to(true)
-      end
-    end
-    
-    describe '#update' do
     end
 
     describe '#destroy' do

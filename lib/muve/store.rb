@@ -17,7 +17,7 @@ module Muve
     end
 
     # creates a resource containing the specified details in the given container 
-    # Returns the id of the created object on success
+    # Returns the id of the created object on success, raises an error otherwise
     def create(resource, details)
       raise MuveIncompleteImplementation, "implement a create handler for #{self}"
     end
