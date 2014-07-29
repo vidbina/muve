@@ -32,7 +32,7 @@ describe Muve::Movement do
     expect(Muve::Movement.new).to respond_to(:connection)
   end
 
-  it 'shares the connection among all instances' do
+  it 'shares the connection among other models' do
     connection = Object.new
     Muve.init(connection)
 

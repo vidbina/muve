@@ -1,7 +1,19 @@
 module MuveError
-  class MuveError < StandardError
+  class MuveStandardError < StandardError
   end
 
-  class MuveSaveError < MuveError
+  class MuveSaveError < MuveStandardError
+  end
+
+  class MuveInvalidQuery < MuveStandardError
+  end
+
+  class MuveInvalidAttributes < MuveStandardError
+  end
+
+  class MuveIncompleteImplementation < MuveStandardError
+  end
+
+  class MuveNotConfigured < MuveStandardError
   end
 end
