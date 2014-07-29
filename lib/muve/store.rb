@@ -16,38 +16,47 @@ module Muve
       end
     end
 
-    # creates a resource containing the specified details in the given container 
+    # creates a resource containing the specified details in the repository.
     # Returns the id of the created object on success, raises an error otherwise
     def create(resource, details)
       raise MuveIncompleteImplementation, "implement a create handler for #{self}"
     end
 
-    # removes a resource matching the specified id and details from the given container
-    # A successful removal operation should return true while any other value
-    # is considered an error.
+    # removes a resource matching the optional +id+ and +details+ 
+    # from the repository.
+    # A successful removal operation should returns +true+ while any other 
+    # value is considered an error.
     def delete(resource, id, details=nil)
       raise MuveIncompleteImplementation, "implement a delete handler for #{self}"
     end
 
-    # update a resource with the given id to the given details
+    # update a resource with the identified by +id+ with the given +details+
     def update(resource, id, details)
       raise MuveIncompleteImplementation, "implement a update handler for #{self}"
     end
 
-    # collect resources from the repository that match the given id and details
-    # Upon the successful retrieval of a resource the id of the resource is
-    # presented under the key +id+ whilst the other attributes of the resource 
-    # are presented with keys named accordingly.
+    # collect a single resource from the repository that matches the given id 
+    # and details. Upon the successful retrieval of a resource the id of the 
+    # resource is presented under the key +id+ while other attributes of the 
+    # resource bear arbitrary names.
     #
-    # +{ id: 12, name: 'Spock', organization: 'The Enterprise' }+
-    # --
-    # NOTE: fetch and find make little sense here
-    # ++
+    #   { id: 12, name: 'Spock', organization: 'The Enterprise' }
     def fetch(resource, id, details={})
       raise MuveIncompleteImplementation, "implement a fetch handler for #{self}"
     end
 
     # find resources from its repository that match the given id and details
+    # Returns an +Enumerator+ that returns a hash with the key +id+ containing
+    # the primary key for the respective resource.
+    #
+    #   def find(resource, details)
+    #     details = {} unless details.kind_of? Hash
+    #     Enumerator.new do |item|
+    #       fetched_result_from_datastore.each do |data|
+    #         item << format_data(data) # format_data composes the required hash 
+    #       end
+    #     end
+    #   end
     def find(resource, details)
       raise MuveIncompleteImplementation, "implement a find handler for #{self}"
     end

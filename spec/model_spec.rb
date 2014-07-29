@@ -123,6 +123,11 @@ describe 'Model' do
           version: '0',
           description: 'Supermodel smile... at least that is what they said'
         })
+        allow(GenericAdaptor).to receive(:find).and_return(Enumerator.new { |y|
+          5.times {
+            y << { id: 12, name: 'Something', version: 1, description: 'haha' }
+          }
+        })
       end
 
       it 'returns an instance of the model' do
@@ -140,7 +145,23 @@ describe 'Model' do
     end
 
     describe '#where' do
-      it 'returns a result set of the matched data'
+      before(:each) do
+        allow(GenericAdaptor).to receive(:find).and_return(Enumerator.new { |y|
+          5.times {
+            y << { id: 12, name: 'Something', version: 1, description: 'ahha' }
+          }
+        })
+      end
+
+      it 'returns the complete result set' do
+        expect(AnotherResource.where({ name: 'all' }).count).to eq(5)
+      end
+
+      it 'returns a instance of the resource for each item' do
+        AnotherResource.where({ name: 'all' }).each do |item|
+          expect(item).to be_a(AnotherResource)
+        end
+      end
     end
 
     describe '#save' do
@@ -218,7 +239,7 @@ describe 'Model' do
 
     it 'calls the find handler upon a request to find resources' do
       expect(GenericAdaptor).to receive(:find).with(Resource, { name: 'bogus' })
-      Resource.where(name: 'bogus')
+      Resource.where(name: 'bogus').take(1)
     end
 
     it 'calls the fetcher to get a resource' do

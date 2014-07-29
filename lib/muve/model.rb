@@ -189,7 +189,14 @@ module Muve
       # Querries the resource repository for all resources that match the
       # specified parameters.
       def where(params)
-        self.new(self.adaptor.get(self, nil, params))
+        Enumerator.new do |item|
+          (self.adaptor.get(self, nil, params) or []).each do |details|
+            details
+            result = self.new()
+            result.send(:populate, details)
+            item << result
+          end
+        end
       end
     end
   end
