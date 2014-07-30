@@ -1,5 +1,3 @@
-require 'muve/store/mongo'
-
 module Muve
   # Muve::Store takes care of resource persistence and retrieval. Use stores
   # as adaptors to connect your implementation of Muve to whichever datastore
