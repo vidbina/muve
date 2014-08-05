@@ -1,36 +1,39 @@
 require 'spec_helper'
 
 describe Muve::Movement do
-  it 'knows a location and a traveller and possibly a time' do
-    expect(Muve::Movement.new).to respond_to(:traveller)
-    expect(Muve::Movement.new).to respond_to(:location)
-    expect(Muve::Movement.new).to respond_to(:time)
+  subject { Muve::Movement.new }
+
+  it { is_expected.to respond_to(:traveller) }
+  it { is_expected.to respond_to(:location) }
+  it { is_expected.to respond_to(:time) }
+
+  shared_examples "a invalid resource" do
+    it { is_expected.to be_invalid }
   end
 
-  it 'is invalid without a traveller' do
-    expect(build(Muve::Movement, traveller: nil)).to be_invalid
+  context "without traveller" do
+    subject { build(Muve::Movement, traveller: nil) }
+    it_behaves_like "a invalid resource"
   end
 
-  it 'is invalid without a location' do
-    expect(build(Muve::Movement, location: nil)).to be_invalid
+  context "without location" do
+    subject { build(Muve::Movement, location: nil) }
+    it_behaves_like "a invalid resource"
   end
 
-  it 'assumes the current time unless specified' do
-    expect(build(Muve::Movement).time).to be_within(2).of(Time.now)
+  context "with explicitely set time" do
+    let(:time_of_interest) { Time.now - rand(500000) }
+    subject { build(Muve::Movement, time: time_of_interest) }
+    it { expect(subject.time).to eq(time_of_interest) }
   end
 
-  it 'accepts keeps the specified' do
-    last_time = Time.now - rand(500000)
-    expect(build(Muve::Movement, time: last_time).time).to eq(last_time)
+  context "new movement" do
+    subject { build(Muve::Movement) }
+    it { expect(subject.time).to be_within(2).of(Time.now) }
+    it { is_expected.to be_valid }
   end
 
-  it 'is valid with a traveller and location' do
-    expect(build(Muve::Movement)).to be_valid
-  end
-
-  it 'knows a connection' do
-    expect(Muve::Movement.new).to respond_to(:connection)
-  end
+  it { is_expected.to respond_to(:connection) }
 
   it 'shares the connection among other models' do
     connection = Object.new
