@@ -58,7 +58,7 @@ module Muve
 
     # Destroy a resource
     def destroy
-      if adaptor.delete(container, id) == true
+      if adaptor.delete(self.class.container, id) == true
         @destroyed = true 
       end
     end
@@ -121,30 +121,30 @@ module Muve
     # NOTE: not sure we need this
     def attributes
       data = {}
-      fields.each { |k| data[k.to_sym] = self.public_send(k) }
+      fields.select{ |k| k != invalid_attributes }.each { |k| 
+        data[k.to_sym] = self.public_send(k) 
+      }
       data
+    end
+
+    def fields
+      []
     end
 
     # Creates the record and performs the necessary housekeeping (e.g.: setting
     # the new id and un-marking the new_record?
     def create(attr)
-      @id = adaptor.create(container, attr)
+      @id = adaptor.create(self.class.container, attr)
       @new_record = false
     end
 
     # TODO: Update the record and return the number of modified rows
     def update(attr)
-      adaptor.update(container, id, attr)
+      adaptor.update(self.class.container, id, attr)
     end
 
     def adaptor
       self.class.adaptor
-    end
-
-    def container
-    end
-
-    def details
     end
 
     # Class methods exposed to all Muve models
