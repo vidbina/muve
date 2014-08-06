@@ -8,6 +8,7 @@ describe 'Model' do
         'resources'
       end
 
+      private
       def fields
         [:name, :version]
       end
@@ -21,6 +22,7 @@ describe 'Model' do
         'other_resources'
       end
 
+      private
       def fields
         [:name, :version, :description]
       end
@@ -50,6 +52,7 @@ describe 'Model' do
 
   it 'knows the identifier of its repository' do
     expect(Resource).to respond_to(:container)
+    expect(Resource.container).to eq('resources')
   end
 
   it 'allows the setting of the adaptor' do
@@ -222,11 +225,16 @@ describe 'Model' do
       it 'is not a new record' do
         expect { @res.destroy }.to change{ @res.destroyed? }.to(true)
       end
-    end
-
-    it 'calls the delete handler upon remove' do
-      expect(GenericAdaptor).to receive(:delete).once
-      @res.destroy
+  
+      it 'calls the delete handler upon remove' do
+        expect(GenericAdaptor).to receive(:delete).once
+        @res.destroy
+      end
+  
+      it 'calls the delete handler with the proper details' do
+        expect(GenericAdaptor).to receive(:delete).with('other_resources', @id).once
+        @res.destroy
+      end
     end
 
     it 'calls the update handler upon save on a resource with an id' do

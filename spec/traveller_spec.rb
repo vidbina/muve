@@ -1,12 +1,13 @@
 require 'spec_helper'
 
 describe Muve::Traveller do
-  it 'has an id' do
-    expect(Muve::Traveller.new).to respond_to(:id)
-  end
+  subject { Muve::Traveller.new }
 
-  it 'is invalid without an id' do
-    expect(Muve::Traveller.new).to be_invalid
-    expect(Muve::Traveller.new(SecureRandom.uuid)).to be_valid
+  it { is_expected.to respond_to(:id) }
+  it { is_expected.to be_invalid }
+
+  context "linked to an existing traveller" do
+    subject { Muve::Traveller.new(SecureRandom.uuid) }
+    it { is_expected.to be_valid }
   end
 end

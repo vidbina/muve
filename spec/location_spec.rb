@@ -1,51 +1,31 @@
 require 'spec_helper'
 
 describe Muve::Location do
-  before do
-    @lat, @lng = Faker::Geolocation.lat, Faker::Geolocation.lng
-  end
+  let(:latitude) { Faker::Geolocation.lat }
+  let(:longitude) { Faker::Geolocation.lng }
 
-  it 'knows its latitude and longitude' do
-    expect(Muve::Location.new(@lat, @lng).latitude).to eq(@lat)
-    expect(Muve::Location.new(@lat, @lng).longitude).to eq(@lng)
-  end
+  subject { Muve::Location.new(latitude, longitude) }
+  it { expect(subject.latitude).to eq(latitude) }
+  it { expect(subject.longitude).to eq(longitude) }
+  it { expect(subject.lat).to eq(latitude) }
+  it { expect(subject.long).to eq(longitude) }
+  it { expect(subject.lng).to eq(longitude) }
 
-  it 'gets the longitude through its aliases' do
-    location = Muve::Location.new(@lat, @lng)
-    expect(location.lng).to eq(@lng)
-  end
-
-  it 'gets the latitude through aliases' do
-    location = Muve::Location.new(@lat, @lng)
-    expect(location.lat).to eq(@lat)
-  end
-
-  it 'sets the longitude through its aliases' do
-    location = Muve::Location.new(@lat, @lng)
-
-    longitude = Faker::Geolocation.lng
-    location.lng = longitude
-    expect(location.longitude).to eq(longitude)
-
-    longitude = Faker::Geolocation.lng
-    location.long = longitude
-    expect(location.longitude).to eq(longitude)
-  end
-
-  it 'sets the latitude through its aliases' do
-    location = Muve::Location.new(@lat, @lng)
-    latitude = Faker::Geolocation.lat
-    location.lat = latitude
-    expect(location.latitude).to eq(latitude)
-  end
+  let(:new_latitude) { Faker::Geolocation.lat }
+  let(:new_longitude) { Faker::Geolocation.lng }
+  it { expect { subject.latitude = new_latitude }.to change{subject.latitude}.to(new_latitude) }
+  it { expect { subject.lat = new_latitude }.to change{subject.latitude}.to(new_latitude) }
+  it { expect { subject.longitude = new_longitude }.to change{subject.longitude}.to(new_longitude) }
+  it { expect { subject.long = new_longitude }.to change{subject.longitude}.to(new_longitude) }
+  it { expect { subject.lng = new_longitude }.to change{subject.longitude}.to(new_longitude) }
 
   it 'is invalid when latitude exceeds bounds' do
-    expect(Muve::Location.new(-91, @lng)).to be_invalid
-    expect(Muve::Location.new( 91, @lng)).to be_invalid
+    expect(Muve::Location.new(-91, longitude)).to be_invalid
+    expect(Muve::Location.new( 91, longitude)).to be_invalid
   end
 
   it 'is invalid when longitude exceeds bounds' do
-    expect(Muve::Location.new(@lat, -181)).to be_invalid
-    expect(Muve::Location.new(@lat,  181)).to be_invalid
+    expect(Muve::Location.new(latitude, -181)).to be_invalid
+    expect(Muve::Location.new(latitude,  181)).to be_invalid
   end
 end
