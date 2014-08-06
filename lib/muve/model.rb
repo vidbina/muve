@@ -107,7 +107,7 @@ module Muve
 
       details.each do |attr, value|
         next if invalid_attributes.include? attr.to_s
-        self.public_send "#{attr}=", value
+        self.public_send "#{attr}=", value if fields.include? attr.to_sym
       end
 
       @new_record = false if details.key? :id

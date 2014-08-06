@@ -8,6 +8,7 @@ describe 'Model' do
         'resources'
       end
 
+      private
       def fields
         [:name, :version]
       end
@@ -21,6 +22,7 @@ describe 'Model' do
         'other_resources'
       end
 
+      private
       def fields
         [:name, :version, :description]
       end
