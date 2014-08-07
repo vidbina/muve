@@ -127,6 +127,9 @@ module Muve
       data
     end
 
+    # A manifest of the fields known to the model. The model logic seeks 
+    # counsel from this resource to determine which properties to write and 
+    # read from the repository.
     def fields
       []
     end
@@ -198,6 +201,17 @@ module Muve
             item << result
           end
         end
+      end
+  
+      # The +with_field+ helper allows one to declare a functioning model 
+      # with less lines of code.
+      #
+      # Instead of declaring +attr_accessor :name, :age, :hat_size+ along with
+      # the required private +#fields# method one may specify the known fields
+      # of the resource with one line of code.
+      def with_fields(*args)
+        attr_accessor *args
+        class_eval "def fields; #{args}; end"
       end
     end
   end

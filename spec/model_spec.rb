@@ -2,31 +2,29 @@ describe 'Model' do
   before do
     class Resource
       include Muve::Model
-      attr_accessor :name, :version
+      with_fields :name, :version
 
       def self.container
         'resources'
-      end
-
-      private
-      def fields
-        [:name, :version]
       end
     end
 
     class AnotherResource
       include Muve::Model
-      attr_accessor :name, :version, :description
+      with_fields :name, :version, :description, :age
 
       def self.container
         'other_resources'
       end
-
-      private
-      def fields
-        [:name, :version, :description]
-      end
     end
+  end
+
+  context "instantiated AnotherResource" do
+    subject { AnotherResource.new }
+    it { is_expected.to respond_to(:description) }
+    it { is_expected.to respond_to(:name) }
+    it { is_expected.to respond_to(:version) }
+    it { expect(subject.send(:fields)).to include :name, :version, :description, :age }
   end
 
   it 'remembers its connection' do
@@ -36,6 +34,7 @@ describe 'Model' do
   end
 
   it 'raises a not configured exception when connection is not set' do
+    Muve::Model = nil
     skip # TODO: get rid of Singleton-like pattern?
     expect {
       Muve::Model.connection
