@@ -13,7 +13,8 @@ describe Muve::Location do
 
   let(:new_latitude) { Faker::Geolocation.lat }
   let(:new_longitude) { Faker::Geolocation.lng }
-  it { expect { subject.latitude = new_latitude }.to change{subject.latitude}.to(new_latitude) }
+  # FIX: sometimes the new_* returns the same value as the already set value which fails when pulled through the change matcher
+  it { expect { subject.latitude = new_latitude }.to(change{subject.latitude}.to(new_latitude), "expected #{subject.latitude} to be #{new_latitude}") }
   it { expect { subject.lat = new_latitude }.to change{subject.latitude}.to(new_latitude) }
   it { expect { subject.longitude = new_longitude }.to change{subject.longitude}.to(new_longitude) }
   it { expect { subject.long = new_longitude }.to change{subject.longitude}.to(new_longitude) }
