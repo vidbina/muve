@@ -25,6 +25,36 @@ describe 'Model' do
     it { is_expected.to respond_to(:name) }
     it { is_expected.to respond_to(:version) }
     it { expect(subject.send(:fields)).to include :name, :version, :description, :age }
+  
+    shared_examples "a valid resource" do
+      it { 
+        skip # TODO: build validators for resources
+        is_expected.to be_valid 
+      }
+    end
+
+    context "populating" do
+      context "with nothing" do
+        before { subject.send(:populate, {}) }
+        it_behaves_like "a valid resource"
+        it { expect(subject.name).to eq(nil) }
+      end
+  
+      context "with unknown fields" do
+        before { subject.send(:populate, { name: 'Jack Sparrow', occupation: 'pirate' }) }
+        it_behaves_like "a valid resource"
+        it { expect(subject.name).to eq('Jack Sparrow') }
+        it { expect{ subject.occupation }.to raise_error }
+      end
+  
+      context "with known fields" do
+        before { subject.send(:populate, {name: 'Peter Griffin', description: 'Surfin-bird lover', version: 'the fat one'}) }
+        it_behaves_like "a valid resource"
+        it { expect(subject.name).to eq('Peter Griffin') }
+        it { expect(subject.description).to eq('Surfin-bird lover') }
+        it { expect(subject.version).to eq('the fat one') }
+      end
+    end
   end
 
   it 'remembers its connection' do
@@ -34,19 +64,21 @@ describe 'Model' do
   end
 
   it 'raises a not configured exception when connection is not set' do
-    Muve::Model = nil
-    skip # TODO: get rid of Singleton-like pattern?
-    expect {
-      Muve::Model.connection
-    }.to raise_error(MuveError::MuveNotConfigured)
+    configuration_error = MuveError::MuveNotConfigured
+    Muve::Model.remove_class_variable(:@@conn) if Muve::Model.class_variable_defined?(:@@conn)
 
-    expect {
-      Resource.connection
-    }.to raise_error(MuveError::MuveNotConfigured)
+    expect { Muve::Model.connection }.to raise_error(configuration_error)
+    expect { Resource.connection }.to raise_error(configuration_error) 
+    expect { AnotherResource.connection }.to raise_error(configuration_error)
+  end
 
-    expect {
-      AnotherResource.connection
-    }.to raise_error(MuveError::MuveNotConfigured)
+  it 'raises a not configured exception when database is not set' do
+    configuration_error = MuveError::MuveNotConfigured
+    Muve::Model.remove_class_variable(:@@db) if Muve::Model.class_variable_defined?(:@@db)
+
+    expect { Muve::Model.database }.to raise_error(configuration_error)
+    expect { Resource.database }.to raise_error(configuration_error) 
+    expect { AnotherResource.database }.to raise_error(configuration_error)
   end
 
   it 'knows the identifier of its repository' do
