@@ -2,7 +2,7 @@ module Muve
   class Movement
     include Model
   
-    attr_accessor :traveller, :traveller_id, :location, :time
+    with_fields :traveller, :traveller_id, :location, :time
   
     def initialize(traveller=nil, location=nil, time=Time.now)
       @traveller, @location, @time = traveller, location, time

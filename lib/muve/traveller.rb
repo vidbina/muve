@@ -2,7 +2,7 @@ module Muve
   class Traveller
     include Model
   
-    attr_accessor :id
+    with_fields :id
   
     def initialize(id=nil)
       @id = id

@@ -2,7 +2,7 @@ module Muve
   class Location
     include Model
   
-    attr_accessor :latitude, :longitude
+    with_fields :latitude, :longitude
   
     alias_method :lat,   :latitude
     alias_method :lat=,  :latitude=
