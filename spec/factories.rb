@@ -5,12 +5,12 @@ FactoryGirl.define do
   end
 
   factory Muve::Traveller do
-    id { SecureRandom.uuid }
+    name { Faker::Name.name }
   end
 
   factory Muve::Movement do
-    traveller { build(Muve::Traveller) }
-    #traveller_id { SecureRandom.uuid }
-    location { build(Muve::Location) }
+    traveller { build Muve::Traveller }
+    location { build Muve::Location }
+    time { Time.now - rand(500000) }
   end
 end

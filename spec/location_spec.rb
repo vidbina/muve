@@ -4,7 +4,7 @@ describe Muve::Location do
   let(:latitude) { Faker::Geolocation.lat }
   let(:longitude) { Faker::Geolocation.lng }
 
-  subject { Muve::Location.new(latitude, longitude) }
+  subject { Muve::Location.new latitude: latitude, longitude: longitude }
   it { expect(subject.latitude).to eq(latitude) }
   it { expect(subject.longitude).to eq(longitude) }
   it { expect(subject.lat).to eq(latitude) }
@@ -21,12 +21,12 @@ describe Muve::Location do
   it { expect { subject.lng = new_longitude }.to change{subject.longitude}.to(new_longitude) }
 
   it 'is invalid when latitude exceeds bounds' do
-    expect(Muve::Location.new(-91, longitude)).to be_invalid
-    expect(Muve::Location.new( 91, longitude)).to be_invalid
+    expect(build Muve::Location, latitude: -91).to be_invalid
+    expect(build Muve::Location, latitude:  91).to be_invalid
   end
 
   it 'is invalid when longitude exceeds bounds' do
-    expect(Muve::Location.new(latitude, -181)).to be_invalid
-    expect(Muve::Location.new(latitude,  181)).to be_invalid
+    expect(build Muve::Location, longitude: -181).to be_invalid
+    expect(build Muve::Location, longitude:  181).to be_invalid
   end
 end

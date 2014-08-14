@@ -28,7 +28,7 @@ describe Muve::Movement do
   end
 
   context "new movement" do
-    subject { build(Muve::Movement) }
+    subject { build(Muve::Movement, time: Time.now) }
     it { expect(subject.time).to be_within(2).of(Time.now) }
     it { is_expected.to be_valid }
   end

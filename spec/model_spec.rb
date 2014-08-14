@@ -24,32 +24,23 @@ describe 'Model' do
     it { is_expected.to respond_to(:description) }
     it { is_expected.to respond_to(:name) }
     it { is_expected.to respond_to(:version) }
+    it { is_expected.to respond_to(:valid?) }
     it { expect(subject.send(:fields)).to include :name, :version, :description, :age }
-  
-    shared_examples "a valid resource" do
-      it { 
-        skip # TODO: build validators for resources
-        is_expected.to be_valid 
-      }
-    end
 
     context "populating" do
       context "with nothing" do
         before { subject.send(:populate, {}) }
-        it_behaves_like "a valid resource"
         it { expect(subject.name).to eq(nil) }
       end
   
       context "with unknown fields" do
         before { subject.send(:populate, { name: 'Jack Sparrow', occupation: 'pirate' }) }
-        it_behaves_like "a valid resource"
         it { expect(subject.name).to eq('Jack Sparrow') }
         it { expect{ subject.occupation }.to raise_error }
       end
   
       context "with known fields" do
-        before { subject.send(:populate, {name: 'Peter Griffin', description: 'Surfin-bird lover', version: 'the fat one'}) }
-        it_behaves_like "a valid resource"
+        before { subject.send(:populate, { name: 'Peter Griffin', description: 'Surfin-bird lover', version: 'the fat one' }) }
         it { expect(subject.name).to eq('Peter Griffin') }
         it { expect(subject.description).to eq('Surfin-bird lover') }
         it { expect(subject.version).to eq('the fat one') }

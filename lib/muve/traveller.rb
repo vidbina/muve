@@ -1,15 +1,11 @@
 module Muve
   class Traveller
     include Model
-  
-    with_fields :id
-  
-    def initialize(id=nil)
-      @id = id
-    end
+
+    with_fields :name
   
     def valid?
-      !id.nil?
+      !name.nil? && !name.empty?
     end
   end
 end

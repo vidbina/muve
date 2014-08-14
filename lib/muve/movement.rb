@@ -2,17 +2,13 @@ module Muve
   class Movement
     include Model
   
-    with_fields :traveller, :traveller_id, :location, :time
-  
-    def initialize(traveller=nil, location=nil, time=Time.now)
-      @traveller, @location, @time = traveller, location, time
-    end
+    with_fields :traveller, :location, :time
   
     def valid?
       assocs.each do |assoc|
         return false unless !assoc.nil? && assoc.valid?
       end
-      flds.each do |field|
+      fields.each do |field|
         return false unless time
       end
       true
@@ -23,12 +19,6 @@ module Muve
       [
         @traveller,
         @location
-      ]
-    end
-  
-    def flds
-      [
-        @time
       ]
     end
   end
