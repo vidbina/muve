@@ -204,6 +204,7 @@ module Muve
       def create(attributes)
         resource = self.new(attributes)
         resource.save if resource
+        resource
       end
     end
   end

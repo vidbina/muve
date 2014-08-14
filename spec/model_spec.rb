@@ -120,7 +120,7 @@ describe 'Model' do
     end
   
     context "a instance" do
-      subject = @res
+      subject { @res }
       it_behaves_like "a ActiveRecord-like resource"
     end
 
