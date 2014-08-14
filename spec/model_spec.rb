@@ -134,6 +134,29 @@ describe 'Model' do
       @res = Resource.new
     end
 
+    shared_examples "an ActiveRecord-like class" do
+      it { is_expected.to respond_to(:create) }
+      it { is_expected.to respond_to(:destroy_all) }
+      it { is_expected.to respond_to(:find) }
+    end
+
+    shared_examples "an ActiveRecord-like resource" do
+      it { is_expected.to respond_to(:save) }
+      it { is_expected.to respond_to(:destroy) }
+      it { is_expected.to respond_to(:new_record?) }
+      it { is_expected.to respond_to(:destroyed?) }
+    end
+  
+    context "the class" do
+      subject { Resource }
+      it_behaves_like "an ActiveRecord-like class"
+    end
+
+    context "a instance" do
+      subject { @res }
+      it_behaves_like "an ActiveRecord-like resource"
+    end
+
     it 'calls the store create handler upon save' do
       expect(GenericAdaptor).to receive(:create).once
       @res.save
@@ -186,6 +209,28 @@ describe 'Model' do
         AnotherResource.where({ name: 'all' }).each do |item|
           expect(item).to be_a(AnotherResource)
         end
+      end
+    end
+
+    describe '::create' do
+      before(:each) do
+        allow(GenericAdaptor).to receive(:create).and_return(@id = SecureRandom.hex)
+      end
+
+      it 'creates a new instance' do
+        attributes = { name: 'Bonobo' }
+        expect(Resource).to receive(:new).with(attributes).once
+        Resource.create(attributes)
+      end
+
+      it 'calls the save handler' do
+        expect_any_instance_of(Resource).to receive(:save).once
+        Resource.create(name: 'Nice')
+      end
+
+      it 'has the set attributes' do
+        resource = Resource.create(name: 'Monaco')
+        expect(resource.name).to eq('Monaco')
       end
     end
 

@@ -213,6 +213,17 @@ module Muve
         attr_accessor *args
         class_eval "def fields; #{args}; end"
       end
+
+      # Creates a new resource and persists it to the datastore
+      def create(attributes)
+        resource = self.new(attributes)
+        resource.save if resource
+        resource
+      end
+
+      def destroy_all
+        warn "Destroying of all entities for a resource is not implemented"
+      end
     end
   end
 end
