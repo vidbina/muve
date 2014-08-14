@@ -112,16 +112,27 @@ describe 'Model' do
       @res = Resource.new
     end
 
-    shared_examples "a ActiveRecord-like resource" do
+    shared_examples "an ActiveRecord-like class" do
+      it { is_expected.to respond_to(:create) }
+      it { is_expected.to respond_to(:destroy_all) }
+      it { is_expected.to respond_to(:find) }
+    end
+
+    shared_examples "an ActiveRecord-like resource" do
       it { is_expected.to respond_to(:save) }
       it { is_expected.to respond_to(:destroy) }
       it { is_expected.to respond_to(:new_record?) }
       it { is_expected.to respond_to(:destroyed?) }
     end
   
+    context "the class" do
+      subject { Resource }
+      it_behaves_like "an ActiveRecord-like class"
+    end
+
     context "a instance" do
       subject { @res }
-      it_behaves_like "a ActiveRecord-like resource"
+      it_behaves_like "an ActiveRecord-like resource"
     end
 
     it 'calls the store create handler upon save' do

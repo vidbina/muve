@@ -11,6 +11,20 @@ describe Muve::Location do
   it { expect(subject.long).to eq(longitude) }
   it { expect(subject.lng).to eq(longitude) }
 
+  it { is_expected.to respond_to(:lat) }
+  it { is_expected.to respond_to(:latitude) }
+
+  it { is_expected.to respond_to(:lat=) }
+  it { is_expected.to respond_to(:latitude=) }
+
+  it { is_expected.to respond_to(:lon) }
+  it { is_expected.to respond_to(:long) }
+  it { is_expected.to respond_to(:longitude) }
+
+  it { is_expected.to respond_to(:lon=) }
+  it { is_expected.to respond_to(:long=) }
+  it { is_expected.to respond_to(:longitude=) }
+
   let(:new_latitude) { Faker::Geolocation.lat }
   let(:new_longitude) { Faker::Geolocation.lng }
   it { expect { subject.latitude = new_latitude }.to change{subject.latitude}.to(new_latitude) }
