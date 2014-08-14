@@ -199,6 +199,12 @@ module Muve
           end
         end
       end
+
+      # Creates a new resource and persists it to the datastore
+      def create(attributes)
+        resource = self.new(attributes)
+        resource.save if resource
+      end
     end
   end
 end
