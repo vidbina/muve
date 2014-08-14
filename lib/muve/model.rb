@@ -206,6 +206,10 @@ module Muve
         resource.save if resource
         resource
       end
+
+      def destroy_all
+        warn "Destroying of all entities for a resource is not implemented"
+      end
     end
   end
 end
