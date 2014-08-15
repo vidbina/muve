@@ -137,13 +137,13 @@ module Muve
     # Creates the record and performs the necessary housekeeping (e.g.: setting
     # the new id and un-marking the new_record?
     def create(attr)
-      @id = adaptor.create(self.class.container, attr)
+      @id = adaptor.create(self.class, attr)
       @new_record = false
     end
 
     # TODO: Update the record and return the number of modified rows
     def update(attr)
-      adaptor.update(self.class.container, id, attr)
+      adaptor.update(self.class, id, attr)
     end
 
     def adaptor
