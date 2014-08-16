@@ -75,5 +75,12 @@ module Muve
 
     alias_method :destroy, :delete
     alias_method :remove, :delete
+
+    # composes the id hash for the used store. Some in some cases the index
+    # is the +id+ or +_id+ field, while in other cases the index field may be
+    # different. The store should take care of index naming.
+    def index_hash(index_values)
+      {}
+    end
   end
 end

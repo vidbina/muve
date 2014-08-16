@@ -2,7 +2,7 @@ describe 'Model' do
   before do
     class Resource
       include Muve::Model
-      with_fields :name, :version
+      with_fields :name, :version, :another
 
       def self.container
         'resources'
@@ -127,6 +127,12 @@ describe 'Model' do
 
       class GenericAdaptor
         extend Muve::Store
+
+        def self.index_hash(index_value)
+          hash = { :_id => index_value }
+          #p "setting up hash #{hash}"
+          { :_id => index_value }
+        end
       end
 
       Resource.adaptor = GenericAdaptor
@@ -321,6 +327,54 @@ describe 'Model' do
       id = SecureRandom.uuid
       expect(GenericAdaptor).to receive(:fetch).with(Resource, id, anything)
       Resource.find(id)
+    end
+
+    it 'converts the attributes to saveable objects' do
+      expect(Resource.new(
+        name: 'Peter Griffin',
+        version: 'dumbass',
+        another: AnotherResource.new(
+          name: 'Brian Griffin',
+          version: 'the pretentious one',
+          description: 'Canine, liberal, writer',
+          age: 8
+        )
+      ).send(:to_hash)).to eq(
+        name: 'Peter Griffin',
+        version: 'dumbass',
+        another: {
+          name: 'Brian Griffin',
+          version: 'the pretentious one',
+          description: 'Canine, liberal, writer',
+          age: 8
+        }
+      )
+    end
+
+    it 'converts the attributes to saveable objects' do
+      another = AnotherResource.new
+      another.send :populate, {
+        id: SecureRandom.hex,
+        name: 'Brian Griffin',
+        version: 'the pretentious one',
+        description: 'Canine, liberal, writer',
+        age: 8
+      }
+      expect(Resource.new(
+        name: 'Peter Griffin', 
+        version: 'dumbass', 
+        another: another
+      ).send(:to_hash)).to eq(
+        name: 'Peter Griffin',
+        version: 'dumbass',
+        another: {
+          _id: another.id,
+          name: 'Brian Griffin',
+          version: 'the pretentious one',
+          description: 'Canine, liberal, writer',
+          age: 8
+        }
+      )
     end
   end
 end

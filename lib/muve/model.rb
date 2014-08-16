@@ -42,6 +42,14 @@ module Muve
       @@adaptor
     end
 
+    def to_hash
+      hash = {}
+      attributes.map { |k, v|
+        hash[k] = ((v.to_hash if v.respond_to? :to_hash) or v)
+      }
+      hash
+    end
+
     # Save a resource and raises an MuveSaveError on failure
     def save!
       create_or_update
@@ -122,8 +130,11 @@ module Muve
     def attributes
       data = {}
       fields.select{ |k| k != invalid_attributes }.each { |k| 
-        data[k.to_sym] = self.public_send(k) 
+        data[k.to_sym] = self.public_send(k)
       }
+      if id
+        data = data.merge(adaptor.index_hash id)
+      end
       data
     end
 

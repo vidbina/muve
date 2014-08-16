@@ -2,6 +2,7 @@ describe Muve::Store do
   before do
     class Resource
       include Muve::Model
+      with_fields :name
 
       def self.container
         'resources'
