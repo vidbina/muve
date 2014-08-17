@@ -128,14 +128,12 @@ module Muve
 
     # NOTE: not sure we need this
     def attributes
-      data = {}
-      fields.select{ |k| k != invalid_attributes }.each { |k| 
-        data[k.to_sym] = self.public_send(k)
-      }
-      if id
-        data = data.merge(adaptor.index_hash id)
-      end
-      data
+      self.class.extract_attributes(
+        resource: self,
+        fields: fields,
+        invalid_attributes: invalid_attributes,
+        id: self.id
+      )
     end
 
     # A manifest of the fields known to the model. The model logic seeks 
@@ -192,6 +190,17 @@ module Muve
       # to this construct) of the resource
       def container
         raise MuveError::MuveNotConfigured, "container not defined for #{self}"
+      end
+
+      def extract_attributes(resource: self.new, fields: [], invalid_attributes: [], id: nil)
+        data = {}
+        fields.select{ |k| k != invalid_attributes }.each { |k| 
+          data[k.to_sym] = resource.public_send(k)
+        }
+        if id
+          data = data.merge(resource.class.adaptor.index_hash id)
+        end
+        data
       end
 
       # Finds a resource by id

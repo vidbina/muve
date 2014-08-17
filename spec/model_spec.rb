@@ -17,6 +17,25 @@ describe 'Model' do
         'other_resources'
       end
     end
+
+    class SomeAdaptor
+      extend Muve::Store
+
+      def self.index_hash(index_value)
+        { :_id => index_value }
+      end
+    end
+  end
+
+  context 'AnotherResource' do
+    subject { AnotherResource }
+    it { is_expected.to respond_to(:extract_attributes) }
+    it { expect(subject.send(:extract_attributes,
+      resource: AnotherResource.new,
+      fields: AnotherResource.new.send(:fields),
+      invalid_attributes: AnotherResource.new.send(:invalid_attributes),
+      id: SecureRandom.hex
+    )).to include :name, :version, :description, :age }
   end
 
   context "instantiated AnotherResource" do
@@ -26,6 +45,7 @@ describe 'Model' do
     it { is_expected.to respond_to(:version) }
     it { is_expected.to respond_to(:valid?) }
     it { expect(subject.send(:fields)).to include :name, :version, :description, :age }
+    it { expect(subject.send(:attributes)).to include :name, :version, :description, :age }
 
     context "populating" do
       context "with nothing" do
@@ -78,16 +98,14 @@ describe 'Model' do
   end
 
   it 'allows the setting of the adaptor' do
-    adaptor = Object.new
-    Resource.adaptor = adaptor
-    expect(Resource.adaptor).to be(adaptor)
+    Resource.adaptor = SomeAdaptor
+    expect(Resource.adaptor).to be(SomeAdaptor)
   end
 
   it 'allows the setting of the adaptor through init' do
-    adaptor = Object.new
-    Muve::Model.init(adaptor = adaptor)
-    expect(Muve::Model::handler).to be(adaptor)
-    expect(Muve::Model.handler).to be(adaptor)
+    Muve::Model.init(adaptor = SomeAdaptor)
+    expect(Muve::Model::handler).to be(SomeAdaptor)
+    expect(Muve::Model.handler).to be(SomeAdaptor)
   end
 
   it 'sets the attributes of the resource at initialization' do
@@ -104,11 +122,10 @@ describe 'Model' do
   # TODO: Study if this is desirable perhaps one would rather prefer setting
   # seperate adaptors for different models
   it 'shares the adaptor amongst all its instances' do
-    generic_adaptor = Object.new
-    Resource.adaptor = generic_adaptor
+    Resource.adaptor = SomeAdaptor
 
-    expect(Resource.new.send(:adaptor)).to be(generic_adaptor)
-    expect(AnotherResource.new.send(:adaptor)).to be(generic_adaptor)
+    expect(Resource.new.send(:adaptor)).to be(SomeAdaptor)
+    expect(AnotherResource.new.send(:adaptor)).to be(SomeAdaptor)
   end
 
   describe 'equiped with an adaptor' do
