@@ -42,10 +42,22 @@ module Muve
       @@adaptor
     end
 
-    def to_hash
+    # Returns a hash of the object and subsequently
+    # containing objects that respond to #to_hash.
+    # In order to avoid circular reference hell you
+    # can set the limit.
+    #
+    # By default on the the root object and its 
+    # children a explored. Everything beyond that
+    # range is discarded.
+    def to_hash(level=0, limit=1)
       hash = {}
       attributes.map { |k, v|
-        hash[k] = ((v.to_hash if v.respond_to? :to_hash) or v)
+        if v.respond_to? :to_hash
+          (hash[k] = v.to_hash(level+1, limit)) if level < limit
+        else
+          hash[k] = v
+        end
       }
       hash
     end
@@ -121,8 +133,12 @@ module Muve
       @new_record = false if details.key? :id
     end
 
+    def serialized_attributes
+      to_hash
+    end
+
     def create_or_update
-      result = new_record? ? create(attributes) : update(attributes)
+      result = new_record? ? create(serialized_attributes) : update(serialized_attributes)
       self
     end
 

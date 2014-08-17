@@ -31,11 +31,87 @@ describe 'Model' do
     subject { AnotherResource }
     it { is_expected.to respond_to(:extract_attributes) }
     it { expect(subject.send(:extract_attributes,
-      resource: AnotherResource.new,
-      fields: AnotherResource.new.send(:fields),
-      invalid_attributes: AnotherResource.new.send(:invalid_attributes),
+      resource: subject.new(
+        name: 'Stewie Griffin',
+        version: 'our instance of the multiverse',
+        description: 'Evil baby with a lot of heart',
+        age: 1
+      ),
+      fields: subject.new.send(:fields),
+      invalid_attributes: subject.new.send(:invalid_attributes),
       id: SecureRandom.hex
     )).to include :name, :version, :description, :age }
+  end
+
+  context 'Resource' do
+    subject { Resource }
+    it { is_expected.to respond_to(:extract_attributes) }
+    it { expect(subject.send(:extract_attributes,
+      resource: subject.new(
+        name: 'Stewie Griffin',
+        version: 'our instance of the multiverse',
+        another: AnotherResource.new
+      ),
+      fields: subject.new.send(:fields),
+      invalid_attributes: subject.new.send(:invalid_attributes),
+      id: SecureRandom.hex
+    )).to include :name, :version, :another }
+  end
+
+  context 'Resource' do
+    subject { Resource }
+    it { is_expected.to respond_to(:extract_attributes) }
+    it { expect(subject.send(:extract_attributes,
+      resource: subject.new(
+        name: 'Stewie Griffin',
+        version: 'our instance of the multiverse',
+        another: AnotherResource.new
+      ),
+      fields: subject.new.send(:fields),
+      invalid_attributes: subject.new.send(:invalid_attributes),
+      id: SecureRandom.hex
+    )).to include(:name, :version, :another) }
+
+    it { 
+      expect(subject.new(
+      name: 'Stewie Griffin',
+      version: 'our instance of the multiverse',
+      another: subject.new(
+        name: 'Bitch Stewie',
+        version: 'failed experiment',
+        another: subject.new(
+          name: 'Bitch-Brian',
+          version: 'failed clone by failed experiment'
+        )
+      )
+    ).send(:serialized_attributes)).to eq(
+      name: 'Stewie Griffin',
+      version: 'our instance of the multiverse',
+      another: {
+        name: 'Bitch Stewie',
+        version: 'failed experiment'
+      }
+    ) }
+
+    it { expect(subject.new(
+      name: 'Stewie Griffin',
+      version: 'our instance of the multiverse',
+      another: subject.new(
+        name: 'Bitch Stewie',
+        version: 'failed experiment',
+        another: subject.new(
+          name: 'Bitch-Brian',
+          version: 'failed clone by failed experiment'
+        )
+      )
+    ).send(:serialized_attributes)).to eq(
+      name: 'Stewie Griffin',
+      version: 'our instance of the multiverse',
+      another: {
+        name: 'Bitch Stewie',
+        version: 'failed experiment'
+      }
+    ) }
   end
 
   context "instantiated AnotherResource" do
