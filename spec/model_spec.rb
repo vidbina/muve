@@ -398,7 +398,7 @@ describe 'Model' do
       end
   
       it 'calls the delete handler with the proper details' do
-        expect(GenericAdaptor).to receive(:delete).with('other_resources', @id).once
+        expect(GenericAdaptor).to receive(:delete).with(AnotherResource, @id).once
         @res.destroy
       end
     end

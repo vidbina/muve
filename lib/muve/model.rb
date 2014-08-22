@@ -56,6 +56,7 @@ module Muve
         if v.respond_to? :to_hash
           (hash[k] = v.to_hash(level+1, limit)) if level < limit
         else
+          #(raise MuveAssocError, "#Associated #{v.class} for #{k} must respond to #to_hash or be a Hash") unless v.kind_of? Hash
           hash[k] = v
         end
       }
@@ -66,6 +67,7 @@ module Muve
     def save!
       create_or_update
     rescue => e
+      e.backtrace.each { |err| p err }
       raise MuveSaveError, "Save failed because #{e} was raised"
     end
   
@@ -78,7 +80,7 @@ module Muve
 
     # Destroy a resource
     def destroy
-      if adaptor.delete(self.class.container, id) == true
+      if adaptor.delete(self.class, id) == true
         @destroyed = true 
       end
     end
@@ -211,6 +213,7 @@ module Muve
       def extract_attributes(resource: self.new, fields: [], invalid_attributes: [], id: nil)
         data = {}
         fields.select{ |k| k != invalid_attributes }.each { |k| 
+          # TODO: confirm resource.respond_to? k prior to assigning
           data[k.to_sym] = resource.public_send(k)
         }
         if id
