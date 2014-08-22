@@ -73,6 +73,12 @@ module Muve
       raise MuveIncompleteImplementation, "implement a find handler for #{self}"
     end
 
+    # counts the resources matching the details, if any.
+    # Returns a integer that represents the amount of matching entities found.
+    def count(resource, details={})
+      raise MuveIncompleteImplementation, "implement a count handler for #{self}"
+    end
+
     alias_method :destroy, :delete
     alias_method :remove, :delete
 

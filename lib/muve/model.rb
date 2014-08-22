@@ -241,6 +241,11 @@ module Muve
           end
         end
       end
+
+      # Counts the amount of records that match the parameters
+      def count(params={})
+        self.adaptor.count(self, params)
+      end
   
       # The +with_field+ helper allows one to declare a functioning model 
       # with less lines of code.
