@@ -73,9 +73,9 @@ module Muve
   
     # Save a resource
     def save
+      # TODO: be more verbose about the nature of the failure, if any
+      raise MuveValidationError, "validation failed" unless valid?
       create_or_update
-    rescue => e
-      false
     end
 
     # Destroy a resource

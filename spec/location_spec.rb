@@ -43,4 +43,10 @@ describe Muve::Location do
     expect(build Muve::Location, longitude: -181).to be_invalid
     expect(build Muve::Location, longitude:  181).to be_invalid
   end
+
+  context "validation" do
+    before(:each) { allow_any_instance_of(Muve::Location).to receive(:create_or_update).and_return(true) }
+    it { expect{build(Muve::Location, longitude: -181).save}.to raise_error }
+    it { expect{build(Muve::Location).save}.not_to raise_error }
+  end
 end

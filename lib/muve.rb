@@ -66,7 +66,7 @@ module Muve
   # connection, an adaptor will be needed to actually handle the interaction 
   # between the models and the datastore through the given connection.
   def self.init(connection=nil, database=nil)
-    Model.connection =connection
+    Model.connection = connection
     Model.database = database # can't automatically infer the db as this may differ among adaptors
   end
 end
