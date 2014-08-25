@@ -14,6 +14,7 @@ module Muve
     alias_method :long=, :longitude=
   
     def valid?
+      return false unless latitude && longitude
       return false unless latitude.abs <= 90 && longitude.abs <= 180
       true
     end
