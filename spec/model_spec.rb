@@ -1,5 +1,5 @@
 describe 'Model' do
-  before do
+  before(:each) do
     class Resource
       include Muve::Model
       with_fields :name, :version, :another
@@ -25,6 +25,19 @@ describe 'Model' do
         { :_id => index_value }
       end
     end
+
+    class AnotherAdaptor
+      extend Muve::Store
+
+      def self.index_hash(index_value)
+        { :_id => index_value }
+      end
+    end
+
+    Resource.remove_instance_variable(:@handler) if Resource.instance_variable_defined?(:@handler)
+    AnotherResource.remove_instance_variable(:@handler) if AnotherResource.instance_variable_defined?(:@handler)
+
+    Muve::Model.init SomeAdaptor
   end
 
   context 'AnotherResource' do
@@ -44,6 +57,10 @@ describe 'Model' do
   end
 
   context 'Resource' do
+    before(:each) {
+      Muve::Model.init(SomeAdaptor)
+    }
+
     subject { Resource }
     it { is_expected.to respond_to(:extract_attributes) }
     it { expect(subject.send(:extract_attributes,
@@ -118,6 +135,7 @@ describe 'Model' do
     subject { AnotherResource.new }
     it { is_expected.to respond_to(:description) }
     it { is_expected.to respond_to(:name) }
+    it { is_expected.to respond_to(:to_hash) }
     it { is_expected.to respond_to(:version) }
     it { is_expected.to respond_to(:valid?) }
     it { expect(subject.send(:fields)).to include :name, :version, :description, :age }
@@ -151,7 +169,7 @@ describe 'Model' do
   end
 
   it 'raises a not configured exception when connection is not set' do
-    configuration_error = MuveError::MuveNotConfigured
+    configuration_error = Muve::Error::MuveNotConfigured
     Muve::Model.remove_class_variable(:@@conn) if Muve::Model.class_variable_defined?(:@@conn)
 
     expect { Muve::Model.connection }.to raise_error(configuration_error)
@@ -160,7 +178,7 @@ describe 'Model' do
   end
 
   it 'raises a not configured exception when database is not set' do
-    configuration_error = MuveError::MuveNotConfigured
+    configuration_error = Muve::Error::MuveNotConfigured
     Muve::Model.remove_class_variable(:@@db) if Muve::Model.class_variable_defined?(:@@db)
 
     expect { Muve::Model.database }.to raise_error(configuration_error)
@@ -178,10 +196,18 @@ describe 'Model' do
     expect(Resource.adaptor).to be(SomeAdaptor)
   end
 
+  it 'allows different adaptors for different resources' do
+    Resource.adaptor = SomeAdaptor
+    AnotherResource.adaptor = AnotherAdaptor
+
+    expect(Resource.adaptor).to be(SomeAdaptor)
+    expect(AnotherResource.adaptor).to be(AnotherAdaptor)
+  end
+
   it 'allows the setting of the adaptor through init' do
     Muve::Model.init(adaptor = SomeAdaptor)
-    expect(Muve::Model::handler).to be(SomeAdaptor)
-    expect(Muve::Model.handler).to be(SomeAdaptor)
+    expect(Resource::adaptor).to be(SomeAdaptor)
+    expect(Resource.adaptor).to be(SomeAdaptor)
   end
 
   it 'sets the attributes of the resource at initialization' do
@@ -198,10 +224,31 @@ describe 'Model' do
   # TODO: Study if this is desirable perhaps one would rather prefer setting
   # seperate adaptors for different models
   it 'shares the adaptor amongst all its instances' do
-    Resource.adaptor = SomeAdaptor
+    Resource.remove_instance_variable(:@adaptor) if Resource.instance_variable_defined?(:@adaptor)
+    AnotherResource.remove_instance_variable(:@adaptor) if AnotherResource.instance_variable_defined?(:@adaptor)
 
+    Muve::Model.init(SomeAdaptor)
+    expect(Muve::Model.send(:handler)).to be(SomeAdaptor)
     expect(Resource.new.send(:adaptor)).to be(SomeAdaptor)
     expect(AnotherResource.new.send(:adaptor)).to be(SomeAdaptor)
+
+    Muve::Model.init(AnotherAdaptor)
+    expect(Muve::Model.send(:handler)).to be(AnotherAdaptor)
+    expect(Resource.new.send(:adaptor)).to be(AnotherAdaptor)
+    expect(AnotherResource.new.send(:adaptor)).to be(AnotherAdaptor)
+  end
+
+  it 'allows different adaptors for different entities' do
+    Resource.remove_instance_variable(:@adaptor) if Resource.instance_variable_defined?(:@adaptor)
+    AnotherResource.remove_instance_variable(:@adaptor) if AnotherResource.instance_variable_defined?(:@adaptor)
+    
+    a = SomeAdaptor
+    b = AnotherAdaptor
+
+    Muve::Model.init(a)
+    Resource.adaptor = b
+    expect(Resource.new.send(:adaptor)).to be(b)
+    expect(AnotherResource.new.send(:adaptor)).to be(a)
   end
 
   describe 'equiped with an adaptor' do
@@ -223,12 +270,12 @@ describe 'Model' do
 
         def self.index_hash(index_value)
           hash = { :_id => index_value }
-          #p "setting up hash #{hash}"
           { :_id => index_value }
         end
       end
 
       Resource.adaptor = GenericAdaptor
+      AnotherResource.adaptor = GenericAdaptor # FIX: allow setting system-wide adaptor?
 
       @res = Resource.new
     end

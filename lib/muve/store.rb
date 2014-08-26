@@ -10,7 +10,7 @@ module Muve
   # Take a look at +Muve::Store::Mongo+ to find an implementation of a store
   # adaptor.
   module Store
-    include MuveError
+    include Muve::Error
     include Muve::Helper
 
     # gets data from the given container matching the provided details

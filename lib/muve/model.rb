@@ -13,7 +13,7 @@ module Muve
   # implementation
   # ++
   module Model
-    include MuveError
+    include Muve::Error
     include Muve::Helper
     
     def initialize(params={})
@@ -33,13 +33,12 @@ module Muve
 
     # Initializes the +Muve::Model+ class. Use the +Muve::Model::init+ method 
     # to set a adaptor to take care of the retrieval and storage of resources.
-    def self.init(adaptor=nil)
-      @@adaptor = adaptor
+    def self.init(handler=nil)
+      @handler = handler if handler
     end
 
-    # Returns the adaptor set to handle retrieval and storage of resources
     def self.handler
-      @@adaptor
+      @handler
     end
 
     # Returns a hash of the object and subsequently
@@ -73,9 +72,9 @@ module Muve
   
     # Save a resource
     def save
+      # TODO: be more verbose about the nature of the failure, if any
+      raise MuveValidationError, "validation failed" unless valid?
       create_or_update
-    rescue => e
-      false
     end
 
     # Destroy a resource
@@ -179,6 +178,7 @@ module Muve
 
     # Class methods exposed to all Muve models
     module ClassMethods
+      include Muve::Error
       # Configure the adaptor to take care of handling persistence for this
       # model. The adaptor should extend +Muve::Store+.
       #
@@ -187,13 +187,14 @@ module Muve
       # an adaptor for another in order to support another database technology 
       # (.e.g: swithing between document databases or relational databases)
       def adaptor=(adaptor)
-        @@adaptor = adaptor
+        @adaptor = adaptor
       end
   
       # The adaptor currently set to handle persistence for all Muve::Model
       # classes and instances
       def adaptor
-        @@adaptor
+        raise MuveNotConfigured, "the adaptor has not been set" unless (@adaptor || Model.handler)
+        @adaptor or Model.handler
       end
 
       def connection
