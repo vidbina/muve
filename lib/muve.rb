@@ -47,7 +47,7 @@ module Muve
       begin
       @@conn
       rescue => e
-        raise MuveNotConfigured, "the connection has not been defined"
+        raise NotConfigured, "the connection has not been defined"
       end
     end
 
@@ -56,7 +56,7 @@ module Muve
       begin
         @@db
       rescue => e
-        raise MuveNotConfigured, "the database has not been defined"
+        raise NotConfigured, "the database has not been defined"
       end
     end
   end

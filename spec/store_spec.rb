@@ -41,7 +41,7 @@ describe Muve::Store do
         else
           GenericStore.send(method, 'resource', nil)
         end
-      }.to raise_error(Muve::Error::MuveIncompleteImplementation)
+      }.to raise_error(Muve::Error::IncompleteImplementation)
     end
   end
 

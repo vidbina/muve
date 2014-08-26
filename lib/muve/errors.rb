@@ -1,19 +1,19 @@
 module Muve
   module Error
-    class MuveStandardError < StandardError; end
+    class StandardError < StandardError; end
   
-    class MuveIncompleteImplementation < MuveStandardError; end
+    class IncompleteImplementation < StandardError; end
   
-    class MuveInvalidAttributes < MuveStandardError; end
+    class InvalidAttributes < StandardError; end
   
-    class MuveInvalidQuery < MuveStandardError; end
+    class InvalidQuery < StandardError; end
   
-    class MuveNotConfigured < MuveStandardError; end
+    class NotConfigured < StandardError; end
   
-    class MuveNotFound < MuveStandardError; end
+    class NotFound < StandardError; end
   
-    class MuveValidationError < MuveStandardError; end
+    class ValidationError < StandardError; end
   
-    class MuveSaveError < MuveStandardError; end
+    class SaveError < StandardError; end
   end
 end

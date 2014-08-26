@@ -55,25 +55,25 @@ module Muve
         if v.respond_to? :to_hash
           (hash[k] = v.to_hash(level+1, limit)) if level < limit
         else
-          #(raise MuveAssocError, "#Associated #{v.class} for #{k} must respond to #to_hash or be a Hash") unless v.kind_of? Hash
+          #(raise AssocError, "#Associated #{v.class} for #{k} must respond to #to_hash or be a Hash") unless v.kind_of? Hash
           hash[k] = v
         end
       }
       hash
     end
 
-    # Save a resource and raises an MuveSaveError on failure
+    # Save a resource and raises an SaveError on failure
     def save!
       create_or_update
     rescue => e
       e.backtrace.each { |err| p err }
-      raise MuveSaveError, "Save failed because #{e} was raised"
+      raise SaveError, "Save failed because #{e} was raised"
     end
   
     # Save a resource
     def save
       # TODO: be more verbose about the nature of the failure, if any
-      raise MuveValidationError, "validation failed" unless valid?
+      raise ValidationError, "validation failed" unless valid?
       create_or_update
     end
 
@@ -208,7 +208,7 @@ module Muve
       # The container (e.g.: collection, tablename or anything that is analogous
       # to this construct) of the resource
       def container
-        raise MuveError::MuveNotConfigured, "container not defined for #{self}"
+        raise Muve::Error::NotConfigured, "container not defined for #{self}"
       end
 
       def extract_attributes(resource: self.new, fields: [], invalid_attributes: [], id: nil)
