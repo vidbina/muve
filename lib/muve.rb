@@ -69,4 +69,8 @@ module Muve
     Model.connection = connection if connection
     Model.database = database if database
   end
+
+  def self.raise_something
+    raise NotConfigured
+  end
 end
