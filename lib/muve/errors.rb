@@ -4,7 +4,7 @@ module Muve
   
     class IncompleteImplementation < StandardError; end
   
-    class InvalidAttributes < StandardError; end
+    class InvalidAttribute < StandardError; end
   
     class InvalidQuery < StandardError; end
   
