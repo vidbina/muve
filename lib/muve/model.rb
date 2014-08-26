@@ -13,7 +13,7 @@ module Muve
   # implementation
   # ++
   module Model
-    include MuveError
+    include Muve::Error
     include Muve::Helper
     
     def initialize(params={})
@@ -178,7 +178,7 @@ module Muve
 
     # Class methods exposed to all Muve models
     module ClassMethods
-      include MuveError
+      include Muve::Error
       # Configure the adaptor to take care of handling persistence for this
       # model. The adaptor should extend +Muve::Store+.
       #

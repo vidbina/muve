@@ -169,7 +169,7 @@ describe 'Model' do
   end
 
   it 'raises a not configured exception when connection is not set' do
-    configuration_error = MuveError::MuveNotConfigured
+    configuration_error = Muve::Error::MuveNotConfigured
     Muve::Model.remove_class_variable(:@@conn) if Muve::Model.class_variable_defined?(:@@conn)
 
     expect { Muve::Model.connection }.to raise_error(configuration_error)
@@ -178,7 +178,7 @@ describe 'Model' do
   end
 
   it 'raises a not configured exception when database is not set' do
-    configuration_error = MuveError::MuveNotConfigured
+    configuration_error = Muve::Error::MuveNotConfigured
     Muve::Model.remove_class_variable(:@@db) if Muve::Model.class_variable_defined?(:@@db)
 
     expect { Muve::Model.database }.to raise_error(configuration_error)
