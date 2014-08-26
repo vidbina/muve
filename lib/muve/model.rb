@@ -193,7 +193,7 @@ module Muve
       # The adaptor currently set to handle persistence for all Muve::Model
       # classes and instances
       def adaptor
-        raise MuveNotConfigured, "the adaptor has not been set" unless (@adaptor || Model.handler)
+        raise NotConfigured, "the adaptor has not been set" unless (@adaptor || Model.handler)
         @adaptor or Model.handler
       end
 
