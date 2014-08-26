@@ -1,3 +1,3 @@
 module Muve
-  VERSION = "1.0.2-alpha"
+  VERSION = "1.1.0-alpha"
 end
