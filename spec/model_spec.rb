@@ -221,6 +221,16 @@ describe 'Model' do
     expect(another.description).to eq('blah')
   end
 
+  it 'allows the modification of attributes' do
+    resource = Resource.new(name: 'muve-resource', version: 0)
+    expect(resource.name).to eq('muve-resource')
+    expect(resource.version).to eq(0)
+
+    resource.attributes = { name: 'french', version: 1 }
+    expect(resource.name).to eq('french')
+    expect(resource.version).to eq(1)
+  end
+
   # TODO: Study if this is desirable perhaps one would rather prefer setting
   # seperate adaptors for different models
   it 'shares the adaptor amongst all its instances' do
@@ -365,8 +375,8 @@ describe 'Model' do
 
       it 'creates a new instance' do
         attributes = { name: 'Bonobo' }
-        expect(Resource).to receive(:new).with(attributes).once
-        Resource.create(attributes)
+        expect(Resource).to receive(:new).with(attributes).and_return(Resource.new(attributes)).once
+        expect(Resource.create(attributes)).to be_a(Resource)
       end
 
       it 'calls the save handler' do
@@ -508,13 +518,44 @@ describe 'Model' do
         name: 'Peter Griffin',
         version: 'dumbass',
         another: {
-          _id: another.id,
+          id: another.id,
           name: 'Brian Griffin',
           version: 'the pretentious one',
           description: 'Canine, liberal, writer',
           age: 8
         }
       )
+    end
+    
+    it 'converts repopulated data to resources' do
+      data = {
+        id: SecureRandom.hex,
+        name: 'Peter Griffin',
+        version: 'dumbass',
+        another: {
+          id: SecureRandom.hex,
+          name: 'Brian Griffin',
+          version: 'the pretentious one',
+          description: 'Canine, liberal, writer',
+          age: 8
+        }
+      }
+      resource = Resource.new
+      resource.send(:populate, data)
+    end
+  end
+
+  describe ".to_param" do
+    it "is equal to the stringified id" do
+      object = AnotherResource.new
+      object.send :populate, {
+        id: SecureRandom.hex,
+        name: 'Brian Griffin',
+        version: 'the pretentious one',
+        description: 'Canine, liberal, writer',
+        age: 8
+      }
+      expect(object.id.to_s).to eq(object.to_param)
     end
   end
 end

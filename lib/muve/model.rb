@@ -53,10 +53,10 @@ module Muve
       hash = {}
       attributes.map { |k, v|
         if v.respond_to? :to_hash
-          (hash[k] = v.to_hash(level+1, limit)) if level < limit
+          (hash[k.to_sym] = v.to_hash(level+1, limit)) if level < limit
         else
           #(raise AssocError, "#Associated #{v.class} for #{k} must respond to #to_hash or be a Hash") unless v.kind_of? Hash
-          hash[k] = v
+          hash[k.to_sym] = v
         end
       }
       hash
@@ -64,17 +64,18 @@ module Muve
 
     # Save a resource and raises an SaveError on failure
     def save!
+      raise ValidationError, "validation failed" unless valid?
       create_or_update
     rescue => e
-      e.backtrace.each { |err| p err }
       raise SaveError, "Save failed because #{e} was raised"
     end
   
     # Save a resource
     def save
       # TODO: be more verbose about the nature of the failure, if any
-      raise ValidationError, "validation failed" unless valid?
-      create_or_update
+      (create_or_update if valid?) or false
+    rescue => e
+      false
     end
 
     # Destroy a resource
@@ -115,8 +116,20 @@ module Muve
     def id
       @id
     end
+
+    # The parameterized identifier of the resource
+    def to_param
+      id && id.to_s
+    end
+
+    def attributes=(data)
+      Helper.symbolize_keys(data).each { |k, v| self.public_send("#{k}=", v) }
+      self
+    end
   
     private
+    # Reserved attributes. These keys are not available to the user because 
+    # they are used to handle plumbing (library internal operations).
     def invalid_attributes
       %w(id adaptor)
     end
@@ -143,7 +156,7 @@ module Muve
       self
     end
 
-    # NOTE: not sure we need this
+    # Returns a Hash of the attributes for the current resource.
     def attributes
       self.class.extract_attributes(
         resource: self,
@@ -204,6 +217,10 @@ module Muve
       def database
         Muve::Model.database
       end
+
+      def model_name
+        self.to_s.split("::").last
+      end
   
       # The container (e.g.: collection, tablename or anything that is analogous
       # to this construct) of the resource
@@ -211,14 +228,15 @@ module Muve
         raise Muve::Error::NotConfigured, "container not defined for #{self}"
       end
 
+      # Returns a Hash of the attributes for the given resource
       def extract_attributes(resource: self.new, fields: [], invalid_attributes: [], id: nil)
         data = {}
         fields.select{ |k| k != invalid_attributes }.each { |k| 
           # TODO: confirm resource.respond_to? k prior to assigning
-          data[k.to_sym] = resource.public_send(k)
+          data[k.to_sym] = resource.public_send(k) if resource.respond_to? k
         }
         if id
-          data = data.merge(resource.class.adaptor.index_hash id)
+          data = data.merge id: id
         end
         data
       end
@@ -260,10 +278,12 @@ module Muve
       end
 
       # Creates a new resource and persists it to the datastore
-      def create(attributes)
-        resource = self.new(attributes)
-        resource.save if resource
-        resource
+      def create(attr)
+        self.new(attr).save
+      end
+
+      def create!(attr)
+        self.new(attr).save!
       end
 
       def destroy_all
