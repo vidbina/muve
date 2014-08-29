@@ -158,6 +158,7 @@ describe 'Model' do
         it { expect(subject.name).to eq('Peter Griffin') }
         it { expect(subject.description).to eq('Surfin-bird lover') }
         it { expect(subject.version).to eq('the fat one') }
+        it { expect(subject.attributes).to eq({ name: 'Peter Griffin', description: 'Surfin-bird lover', version: 'the fat one', age: nil }) }
       end
     end
   end
@@ -524,6 +525,32 @@ describe 'Model' do
           description: 'Canine, liberal, writer',
           age: 8
         }
+      )
+    end
+
+    it 'returns the attributes on request' do
+      another = AnotherResource.new
+      another.send :populate, {
+        id: SecureRandom.hex,
+        name: 'Brian Griffin',
+        version: 'the pretentious one',
+        description: 'Canine, liberal, writer',
+        age: 8
+      }
+      resource = Resource.new
+      id = SecureRandom.hex
+      resource.send :populate, {
+        id: id,
+        name: 'Peter Griffin', 
+        version: 'dumbass', 
+        another: another
+      }
+
+      expect(resource.attributes).to eq(
+        id: id,
+        name: 'Peter Griffin',
+        version: 'dumbass',
+        another: another
       )
     end
     

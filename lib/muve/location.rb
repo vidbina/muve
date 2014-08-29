@@ -19,6 +19,14 @@ module Muve
       true
     end
   
+    def latitude=(lat)
+      @latitude = lat.to_f
+    end
+
+    def longitude=(lon)
+      @longitude = lon.to_f
+    end
+
     def random(center, range)
     end
   end

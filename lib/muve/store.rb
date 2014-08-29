@@ -19,7 +19,7 @@ module Muve
     # - +Adaptor.get(Place, 1232) # find one resource where id = 1232+
     # - +Adaptor.get(Place, nil, { city: 'NYC', rating: 5 })+ # find more
     def get(resource, id=nil, details=nil)
-      raise InvalidQuery unless id || details
+      raise InvalidQuery unless (id || details)
 
       if details
         find(resource, details)
@@ -86,7 +86,7 @@ module Muve
     # is the +id+ or +_id+ field, while in other cases the index field may be
     # different. The store should take care of index naming.
     def index_hash(index_values)
-      {}
+      raise IncompleteImplementation, "implement the index_hash handler for #{self}"
     end
   end
 end

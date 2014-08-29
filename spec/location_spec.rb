@@ -4,12 +4,15 @@ describe Muve::Location do
   let(:latitude) { Faker::Geolocation.lat }
   let(:longitude) { Faker::Geolocation.lng }
 
+  it { expect(Muve::Location.model_name).to eq("Location") }
+
   subject { Muve::Location.new latitude: latitude, longitude: longitude }
   it { expect(subject.latitude).to eq(latitude) }
   it { expect(subject.longitude).to eq(longitude) }
   it { expect(subject.lat).to eq(latitude) }
   it { expect(subject.long).to eq(longitude) }
   it { expect(subject.lng).to eq(longitude) }
+  it { expect{ subject.to_hash }.not_to raise_error }
 
   it { is_expected.to respond_to(:lat) }
   it { is_expected.to respond_to(:latitude) }
@@ -46,7 +49,7 @@ describe Muve::Location do
 
   context "validation" do
     before(:each) { allow_any_instance_of(Muve::Location).to receive(:create_or_update).and_return(true) }
-    it { expect{build(Muve::Location, longitude: -181).save}.to raise_error }
-    it { expect{build(Muve::Location).save}.not_to raise_error }
+    it { expect{build(Muve::Location, longitude: -181).save!}.to raise_error }
+    it { expect{build(Muve::Location).save!}.not_to raise_error }
   end
 end

@@ -126,6 +126,16 @@ module Muve
       Helper.symbolize_keys(data).each { |k, v| self.public_send("#{k}=", v) }
       self
     end
+
+    # Returns a Hash of the attributes for the current resource.
+    def attributes
+      self.class.extract_attributes(
+        resource: self,
+        fields: fields,
+        invalid_attributes: invalid_attributes,
+        id: self.id
+      )
+    end
   
     private
     # Reserved attributes. These keys are not available to the user because 
@@ -154,16 +164,6 @@ module Muve
     def create_or_update
       result = new_record? ? create(serialized_attributes) : update(serialized_attributes)
       self
-    end
-
-    # Returns a Hash of the attributes for the current resource.
-    def attributes
-      self.class.extract_attributes(
-        resource: self,
-        fields: fields,
-        invalid_attributes: invalid_attributes,
-        id: self.id
-      )
     end
 
     # A manifest of the fields known to the model. The model logic seeks 
