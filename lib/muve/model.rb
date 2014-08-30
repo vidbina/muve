@@ -28,7 +28,7 @@ module Muve
     end
 
     def reload
-      self.send(:populate, adaptor.get(self, id)) if id
+      self.send(:populate, adaptor.get(self.class, id)) if id
       self
     end
 
@@ -278,8 +278,9 @@ module Muve
       # the required private +#fields# method one may specify the known fields
       # of the resource with one line of code.
       def with_fields(*args)
+        fields = self.new.send(:fields) # TODO: Fix this sloppy mess
         attr_accessor *args
-        class_eval "def fields; #{args}; end"
+        class_eval "def fields; #{Set.new(fields + args).to_a}; end"
       end
 
       # Creates a new resource and persists it to the datastore
