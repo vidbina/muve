@@ -27,6 +27,11 @@ module Muve
       @destroyed = false
     end
 
+    def reload
+      self.send(:populate, adaptor.get(self, id)) if id
+      self
+    end
+
     def self.included(base)
       base.extend ClassMethods
     end

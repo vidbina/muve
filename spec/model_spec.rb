@@ -319,6 +319,31 @@ describe 'Model' do
       @res.save
     end
 
+    describe '#reload' do
+      it 'does' do
+        id = SecureRandom.hex
+        initial_attrs = {
+          id: id,
+          name: 'First',
+          version: '0',
+          description: 'before'
+        }
+        final_attrs = {
+          id: id,
+          name: 'Last',
+          version: '99',
+          description: 'after'
+        }
+        allow(GenericAdaptor).to receive(:fetch).and_return(initial_attrs)
+        resource = AnotherResource.find(id)
+        expect(resource.attributes).to include(initial_attrs)
+
+        allow(GenericAdaptor).to receive(:fetch).and_return(final_attrs)
+        expect(resource.attributes).to include(initial_attrs)
+        expect(resource.reload.attributes).to include(final_attrs)
+      end
+    end
+
     describe '#find' do
       before(:each) do
         @id = SecureRandom.hex
