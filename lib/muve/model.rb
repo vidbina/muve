@@ -36,6 +36,10 @@ module Muve
       base.extend ClassMethods
     end
 
+    def ==(rival)
+      self.attributes == rival.attributes
+    end
+
     # Initializes the +Muve::Model+ class. Use the +Muve::Model::init+ method 
     # to set a adaptor to take care of the retrieval and storage of resources.
     def self.init(handler=nil)

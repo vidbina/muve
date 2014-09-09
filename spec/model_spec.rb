@@ -169,6 +169,10 @@ describe 'Model' do
     expect(Muve::Model.connection).to be(object)
   end
 
+  it 'allows equality checks between similar-type objects' do
+    expect(Resource.new(name: 'Jones')).to eq(Resource.new(name: 'Jones'))
+  end
+
   it 'raises a not configured exception when connection is not set' do
     configuration_error = Muve::Error::NotConfigured
     Muve::Model.remove_class_variable(:@@conn) if Muve::Model.class_variable_defined?(:@@conn)
