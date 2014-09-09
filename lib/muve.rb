@@ -18,6 +18,8 @@ module Muve
   require "muve/helpers"
   require "muve/model"
   require "muve/store"
+
+  require "muve/place"
   require "muve/location"
   require "muve/traveller"
   require "muve/movement"

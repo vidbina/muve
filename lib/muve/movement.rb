@@ -3,15 +3,6 @@ module Muve
     include Model
   
     with_fields :traveller, :location, :time
-  
-    alias_method :lat,   :latitude
-    alias_method :lat=,  :latitude=
-    alias_method :lon,   :longitude
-    alias_method :lon=,  :longitude=
-    alias_method :lng,   :longitude
-    alias_method :lng=,  :longitude=
-    alias_method :long,  :longitude
-    alias_method :long=, :longitude=
 
     def latitude
       location[:latitude] if location
@@ -40,6 +31,15 @@ module Muve
       end
       true
     end
+  
+    alias_method :lat,   :latitude
+    alias_method :lat=,  :latitude=
+    alias_method :lon,   :longitude
+    alias_method :lon=,  :longitude=
+    alias_method :lng,   :longitude
+    alias_method :lng=,  :longitude=
+    alias_method :long,  :longitude
+    alias_method :long=, :longitude=
   
     private
     def assocs
