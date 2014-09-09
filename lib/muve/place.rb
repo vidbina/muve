@@ -3,5 +3,10 @@ module Muve
     include Model
 
     with_fields :name, :location
+
+    def valid?
+      return false unless location.kind_of?(Muve::Location) && location.valid?
+      true
+    end
   end
 end

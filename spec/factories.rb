@@ -13,4 +13,9 @@ FactoryGirl.define do
     location { build Muve::Location }
     time { Time.now - rand(500000) }
   end
+
+  factory Muve::Place do
+    name { Faker::Venue.name }
+    location { build Muve::Location }
+  end
 end
