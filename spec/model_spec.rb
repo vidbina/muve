@@ -101,7 +101,7 @@ describe 'Model' do
           version: 'failed clone by failed experiment'
         )
       )
-    ).send(:serialized_attributes)).to eq(
+    ).send(:to_hash)).to eq(
       name: 'Stewie Griffin',
       version: 'our instance of the multiverse',
       another: {
@@ -121,7 +121,7 @@ describe 'Model' do
           version: 'failed clone by failed experiment'
         )
       )
-    ).send(:serialized_attributes)).to eq(
+    ).send(:to_hash)).to eq(
       name: 'Stewie Griffin',
       version: 'our instance of the multiverse',
       another: {
@@ -280,12 +280,28 @@ describe 'Model' do
         end
       end
 
+      class GenericFormatter
+        extend Muve::Store::Formatter
+
+        def self.convert_to_storeable_object(resource)
+          resource
+        end
+
+        def self.convert_from_storeable_object(storeable)
+          storeable
+        end
+      end
+
       class GenericAdaptor
         extend Muve::Store
 
         def self.index_hash(index_value)
           hash = { :_id => index_value }
           { :_id => index_value }
+        end
+
+        def self.formatter
+          GenericFormatter
         end
       end
 
@@ -317,7 +333,7 @@ describe 'Model' do
       subject { @res }
       it_behaves_like "an ActiveRecord-like resource"
     end
-
+    
     it 'calls the store create handler upon save' do
       expect(GenericAdaptor).to receive(:create).once
       @res.save
@@ -376,6 +392,11 @@ describe 'Model' do
       it 'returns a record that is not a new record' do
         expect(AnotherResource.find(@id).new_record?).to be(false)
       end
+
+      it 'converts stored data to a workable object' do
+        expect(AnotherResource).to receive(:extract).at_least(:once)
+        AnotherResource.find(@id)
+      end
     end
 
     describe '#where' do
@@ -395,6 +416,11 @@ describe 'Model' do
         AnotherResource.where({ name: 'all' }).each do |item|
           expect(item).to be_a(AnotherResource)
         end
+      end
+
+      it 'converts a stored data to a workable object' do
+        expect(AnotherResource).to receive(:extract).at_least(:once)
+        AnotherResource.where({ name: 'all' }).count
       end
     end
 
@@ -423,6 +449,7 @@ describe 'Model' do
     describe '#save' do
       before(:each) do
         @res.name = 'first'
+        # NOTE: returning @id should not work, return should be a boolean
         allow(GenericAdaptor).to receive(:create).and_return(@id = SecureRandom.hex)
       end
 
@@ -442,6 +469,11 @@ describe 'Model' do
         it 'is persisted' do
           expect{ @res.save }.to change{ @res.persisted? }.to(true)
         end
+
+        it 'is converted to a storage-friendly format' do
+          expect(GenericFormatter).to receive(:convert_to_storeable_object).at_least(1)
+          @res.save
+        end
       end
 
       describe 'on a existing record' do
@@ -453,6 +485,12 @@ describe 'Model' do
         it 'returns persist the resource' do
           expect(@res).to receive(:update).once
           @res.name = 'second'
+          @res.save
+        end
+
+        it 'is converted to a storage-friendly format' do
+          expect(GenericFormatter).to receive(:convert_to_storeable_object).at_least(1)
+          @res.name = 'something'
           @res.save
         end
       end
@@ -509,7 +547,7 @@ describe 'Model' do
       Resource.find(id)
     end
 
-    it 'converts the attributes to saveable objects' do
+    it 'hashes a flat resource' do
       expect(Resource.new(
         name: 'Peter Griffin',
         version: 'dumbass',
@@ -531,7 +569,7 @@ describe 'Model' do
       )
     end
 
-    it 'converts the attributes to saveable objects' do
+    it 'hashes nested resources' do
       another = AnotherResource.new
       another.send :populate, {
         id: SecureRandom.hex,
@@ -601,7 +639,7 @@ describe 'Model' do
     end
   end
 
-  describe ".to_param" do
+  describe "#to_param" do
     it "is equal to the stringified id" do
       object = AnotherResource.new
       object.send :populate, {

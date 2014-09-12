@@ -12,6 +12,10 @@ describe Muve::Store do
     class GenericStore
       extend Muve::Store
     end
+
+    class GenericFormatter
+      extend Muve::Store::Formatter
+    end
   end
 
   it 'provides methods to get a resource' do
@@ -33,6 +37,10 @@ describe Muve::Store do
     expect(GenericStore).to respond_to(:update)
   end
 
+  it 'has a formatter' do
+    expect(GenericStore).to respond_to(:formatter)
+  end
+
   it 'raises incomplete implementation errors on non-implemented methods' do
     %w(create delete update fetch find).each do |method|
       expect{
@@ -43,6 +51,8 @@ describe Muve::Store do
         end
       }.to raise_error(Muve::Error::IncompleteImplementation)
     end
+
+    expect{GenericStore.send(:formatter)}.to raise_error(Muve::Error::IncompleteImplementation)
   end
 
   it 'attempts to fetch a resource if the id is given' do
@@ -59,5 +69,10 @@ describe Muve::Store do
     expect{
       GenericStore.get(Resource)
     }.to raise_error
+  end
+
+  describe "formatter" do
+    it { expect(GenericFormatter).to respond_to(:convert_to_storeable_object) }
+    it { expect(GenericFormatter).to respond_to(:convert_from_storeable_object) }
   end
 end

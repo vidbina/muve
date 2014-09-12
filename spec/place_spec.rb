@@ -12,8 +12,4 @@ describe Muve::Place do
     expect(build Muve::Place, location: build(Muve::Location, latitude: -100)).to be_invalid
     expect(build Muve::Place, location: build(Muve::Location)).to be_valid
   end
-
-  it 'returns the location in its hash' do
-    p build(Muve::Place).to_hash
-  end
 end

@@ -13,6 +13,19 @@ module Muve
     include Muve::Error
     include Muve::Helper
 
+    module Formatter
+      include Muve::Error
+      include Muve::Helper
+
+      def convert_to_storeable_object(resource)
+        raise IncompleteImplementation, "convertor to storeable needed"
+      end
+
+      def convert_from_storeable_object(storeable)
+        raise IncompleteImplementation, "convertor from storeable needed"
+      end
+    end
+
     # gets data from the given container matching the provided details
     #
     # Given a +Place+ resource the following calls may be acceptable
@@ -87,6 +100,10 @@ module Muve
     # different. The store should take care of index naming.
     def index_hash(index_values)
       raise IncompleteImplementation, "implement the index_hash handler for #{self}"
+    end
+
+    def formatter
+      raise IncompleteImplementation, "specify a formatter"
     end
   end
 end

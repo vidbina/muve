@@ -28,7 +28,7 @@ module Muve
     end
 
     def reload
-      self.send(:populate, adaptor.get(self.class, id)) if id
+      self.send(:populate, extract(adaptor.get(self.class, id))) if id
       self
     end
 
@@ -37,6 +37,7 @@ module Muve
     end
 
     def ==(rival)
+      return false unless rival.kind_of? self.class
       self.attributes == rival.attributes
     end
 
@@ -166,12 +167,14 @@ module Muve
       @new_record = false if details.key? :id
     end
 
-    def serialized_attributes
-      to_hash
+    def storeable_attributes
+      hash = {}
+      attributes.map { |k, v| hash[k] = convert(v) }
+      hash
     end
 
     def create_or_update
-      result = new_record? ? create(serialized_attributes) : update(serialized_attributes)
+      result = new_record? ? create(storeable_attributes) : update(storeable_attributes)
       self
     end
 
@@ -186,6 +189,7 @@ module Muve
     # the new id and un-marking the new_record?
     def create(attr)
       @id = adaptor.create(self.class, attr)
+      # TODO: deal with unsuccessful #create
       @new_record = false
     end
 
@@ -196,6 +200,14 @@ module Muve
 
     def adaptor
       self.class.adaptor
+    end
+
+    def extract(storeable)
+      self.class.extract(storeable)
+    end
+
+    def convert(resource)
+      self.class.convert(resource)
     end
 
     # Class methods exposed to all Muve models
@@ -219,6 +231,14 @@ module Muve
         @adaptor or Model.handler
       end
 
+      def extract(storeable)
+        adaptor.formatter.convert_from_storeable_object(storeable)
+      end
+
+      def convert(resource)
+        adaptor.formatter.convert_to_storeable_object(resource)
+      end
+
       def connection
         Muve::Model.connection
       end
@@ -238,6 +258,7 @@ module Muve
       end
 
       # Returns a Hash of the attributes for the given resource
+      # TODO: do we still need this?
       def extract_attributes(resource: self.new, fields: [], invalid_attributes: [], id: nil)
         data = {}
         fields.select{ |k| k != invalid_attributes }.each { |k| 
@@ -253,7 +274,7 @@ module Muve
       # Finds a resource by id
       def find(id)
         result = self.new()
-        result.send(:populate, self.adaptor.get(self, id))
+        result.send(:populate, extract(self.adaptor.get(self, id)))
         result
       end
 
@@ -264,7 +285,7 @@ module Muve
           (self.adaptor.get(self, nil, params) or []).each do |details|
             details
             result = self.new()
-            result.send(:populate, details)
+            result.send(:populate, extract(details))
             item << result
           end
         end
