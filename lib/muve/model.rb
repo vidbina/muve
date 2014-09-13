@@ -285,7 +285,7 @@ module Muve
           (self.adaptor.get(self, nil, params) or []).each do |details|
             details
             result = self.new()
-            result.send(:populate, extract(details, self.class))
+            result.send(:populate, extract(details, self.new.class))
             item << result
           end
         end
