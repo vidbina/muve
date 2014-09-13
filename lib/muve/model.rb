@@ -28,7 +28,7 @@ module Muve
     end
 
     def reload
-      self.send(:populate, extract(adaptor.get(self.class, id))) if id
+      self.send(:populate, extract(adaptor.get(self.class, id), self.class)) if id
       self
     end
 
@@ -202,8 +202,8 @@ module Muve
       self.class.adaptor
     end
 
-    def extract(storeable)
-      self.class.extract(storeable)
+    def extract(storeable, klass=nil)
+      self.class.extract(storeable, klass)
     end
 
     def convert(resource)
@@ -231,8 +231,8 @@ module Muve
         @adaptor or Model.handler
       end
 
-      def extract(storeable)
-        adaptor.formatter.convert_from_storeable_object(storeable)
+      def extract(storeable, klass=nil)
+        adaptor.formatter.convert_from_storeable_object(storeable, klass)
       end
 
       def convert(resource)
@@ -273,8 +273,8 @@ module Muve
 
       # Finds a resource by id
       def find(id)
-        result = self.new()
-        result.send(:populate, extract(self.adaptor.get(self, id)))
+        result = self.new
+        result.send(:populate, extract(self.adaptor.get(self, id), result.class))
         result
       end
 
@@ -285,7 +285,7 @@ module Muve
           (self.adaptor.get(self, nil, params) or []).each do |details|
             details
             result = self.new()
-            result.send(:populate, extract(details))
+            result.send(:populate, extract(details, self.class))
             item << result
           end
         end

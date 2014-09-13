@@ -287,7 +287,7 @@ describe 'Model' do
           resource
         end
 
-        def self.convert_from_storeable_object(storeable)
+        def self.convert_from_storeable_object(storeable, klass=nil)
           storeable
         end
       end
@@ -393,7 +393,7 @@ describe 'Model' do
         expect(AnotherResource.find(@id).new_record?).to be(false)
       end
 
-      it 'converts stored data to a workable object' do
+      it 'calls the extractor on a call' do
         expect(AnotherResource).to receive(:extract).at_least(:once)
         AnotherResource.find(@id)
       end
