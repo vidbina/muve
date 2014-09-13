@@ -12,4 +12,16 @@ describe Muve::Place do
     expect(build Muve::Place, location: build(Muve::Location, latitude: -100)).to be_invalid
     expect(build Muve::Place, location: build(Muve::Location)).to be_valid
   end
+
+  it 'is invalid when the name is not specified' do
+    expect(build Muve::Place, name: nil).to be_invalid
+  end
+
+  it 'is invalid when the location is invalid' do
+    expect(build Muve::Place, location: build(Muve::Location, :invalid)).to be_invalid
+  end
+
+  it 'is valid when all field are set' do
+    expect(build Muve::Place).to be_valid
+  end
 end

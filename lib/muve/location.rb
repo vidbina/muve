@@ -27,7 +27,8 @@ module Muve
       @longitude = value.to_f
     end
 
-    def random(center, range)
+    def save
+      true
     end
   end
 end

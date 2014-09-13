@@ -21,7 +21,7 @@ module Muve
         raise IncompleteImplementation, "convertor to storeable needed"
       end
 
-      def convert_from_storeable_object(storeable)
+      def convert_from_storeable_object(storeable, klass=nil)
         raise IncompleteImplementation, "convertor from storeable needed"
       end
     end
